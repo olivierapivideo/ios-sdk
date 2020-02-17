@@ -6,18 +6,10 @@ target 'sdkApiVideo' do
   use_frameworks!
 
   # Pods for sdkApiVideo
-  pod 'HaishinKit', '~> 1.0.2'
-
+  pod 'HaishinKit', '~> 1.0.4'
+  
   target 'sdkApiVideoTests' do
     # Pods for testing
   end
-
-end
-
-target 'sdkApiVideoExempleApp' do
-  # Comment the next line if you don't want to use dynamic frameworks
-  use_frameworks!
-
-  # Pods for sdkApiVideoExempleApp
 
 end
