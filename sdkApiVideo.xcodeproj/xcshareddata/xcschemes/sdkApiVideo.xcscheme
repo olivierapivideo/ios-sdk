@@ -34,20 +34,6 @@
                ReferencedContainer = "container:sdkApiVideo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7A38F21523433B0100C94733"
-               BuildableName = "sdkApiVideoExempleApp.app"
-               BlueprintName = "sdkApiVideoExempleApp"
-               ReferencedContainer = "container:sdkApiVideo.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction

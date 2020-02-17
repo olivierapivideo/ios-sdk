@@ -31,8 +31,6 @@
 		C7600A2423E06CE700049EC0 /* ChapterApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7600A2323E06CE700049EC0 /* ChapterApi.swift */; };
 		C7600A2623E06DFA00049EC0 /* Chapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7600A2523E06DFA00049EC0 /* Chapter.swift */; };
 		C7600A2823E0767800049EC0 /* ChapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7600A2723E0767700049EC0 /* ChapterTests.swift */; };
-		C7600A2A23E07E6900049EC0 /* costarica_chapter_fr.vtt in Resources */ = {isa = PBXBuildFile; fileRef = C7600A2923E07E6900049EC0 /* costarica_chapter_fr.vtt */; };
-		C784FD0123B4EF4100F76BAB /* shopping-basket.png in Resources */ = {isa = PBXBuildFile; fileRef = C784FD0023B4EF4100F76BAB /* shopping-basket.png */; };
 		C79431AF23A7978C00674A10 /* PlayerApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79431AE23A7978C00674A10 /* PlayerApi.swift */; };
 		C79431B123A7982C00674A10 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79431B023A7982C00674A10 /* Player.swift */; };
 		C79431B323A7986000674A10 /* AssetsPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79431B223A7986000674A10 /* AssetsPlayer.swift */; };
@@ -403,8 +401,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C7600A2A23E07E6900049EC0 /* costarica_chapter_fr.vtt in Resources */,
-				C784FD0123B4EF4100F76BAB /* shopping-basket.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

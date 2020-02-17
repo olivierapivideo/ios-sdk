@@ -114,7 +114,7 @@ The api.video web-service helps you put video on the web without the hassle. Thi
   # spec.requires_arc = true
 
   # spec.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
-  spec.dependency "HaishinKit", "~> 1.0.2"
+  spec.dependency 'HaishinKit', '~> 1.0.4'
   spec.dependency 'Logboard', '~> 2.1.2'
 
 end
