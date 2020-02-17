@@ -2,7 +2,7 @@
 
 ![Language](https://img.shields.io/badge/language-Swift%205.1-orange.svg)
 
-The api.video web-service helps you put video on the web without the hassle. This documentation helps you use the corresponding IOS client. This is an early version, feel free to report any issue.
+The api.video service helps you put video online without the hassle. This documentation helps you use the corresponding IOS client. This is an early version, feel free to report any issue.
 
 # Installation
 ## Cocoapod
