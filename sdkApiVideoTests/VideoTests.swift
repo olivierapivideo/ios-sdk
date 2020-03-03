@@ -471,7 +471,7 @@ class VideoTests: XCTestCase {
         var isAuthentified = false
         var videoApi: VideoApi!
 
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi

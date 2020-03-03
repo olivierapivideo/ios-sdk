@@ -9,15 +9,15 @@
 import Foundation
 
 public struct LiveStream: Codable{
-    public var liveStreamId: String
-    public var streamKey: String
-    public var name: String
-    public var record: Bool
-    public var broadcasting: Bool
-    public var assets: Assets
+    public var liveStreamId: String?
+    public var streamKey: String?
+    public var name: String?
+    public var record: Bool?
+    public var broadcasting: Bool?
+    public var assets: Assets?
     public var playerId: String?
     
-    public init(liveStreamId: String, streamKey: String, name: String, record: Bool, broadcasting: Bool, assets: Assets, playerId: String?) {
+    public init(liveStreamId: String?, streamKey: String?, name: String?, record: Bool?, broadcasting: Bool?, assets: Assets?, playerId: String?) {
         self.liveStreamId = liveStreamId
         self.streamKey = streamKey
         self.name = name

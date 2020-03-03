@@ -9,11 +9,11 @@
 import Foundation
 
 public struct Response: Codable{
-    public var url: String
-    public var statusCode: String
-    public var message: String
+    public var url: String?
+    public var statusCode: String?
+    public var message: String?
     
-    public init(url: String, statusCode: String, message: String) {
+    public init(url: String?, statusCode: String?, message: String?) {
         self.url = url
         self.statusCode = statusCode
         self.message = message

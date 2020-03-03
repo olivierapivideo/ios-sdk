@@ -11,7 +11,7 @@ public struct Quality: Codable{
     public var quality: String?
     public var status: String?
     
-    init(quality: String, status: String) {
+    init(quality: String?, status: String?) {
         self.quality = quality
         self.status = status
     }

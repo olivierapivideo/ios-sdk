@@ -9,16 +9,18 @@
 import Foundation
 
 public struct Assets: Codable{
-    public var hls: String
-    public var iframe: String
-    public var player: String
-    public var thumbnail: String
+    public var hls: String?
+    public var iframe: String?
+    public var player: String?
+    public var thumbnail: String?
+    public var mp4: String?
     
-    init(hls: String, iframe: String, player: String, thumbnail: String) {
+    init(hls: String?, iframe: String?, player: String?, thumbnail: String?, mp4: String?) {
         self.hls = hls
         self.iframe = iframe
         self.player = player
         self.thumbnail = thumbnail
+        self.mp4 = mp4
     }
     
     enum CodingKeys : String, CodingKey {
@@ -26,5 +28,6 @@ public struct Assets: Codable{
         case iframe
         case player
         case thumbnail
+        case mp4
     }
 }

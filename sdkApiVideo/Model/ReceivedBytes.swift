@@ -12,7 +12,7 @@ public struct ReceivedBytes: Codable{
     public var from: Int?
     public var total: Int?
     
-    init(to: Int, from: Int, total: Int) {
+    init(to: Int?, from: Int?, total: Int?) {
         self.to = to
         self.from = from
         self.total = total

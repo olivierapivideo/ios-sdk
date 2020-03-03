@@ -9,11 +9,11 @@
 import Foundation
 
 public struct Chapter: Codable{
-    public var uri: String
-    public var src: String
-    public var language: String
+    public var uri: String?
+    public var src: String?
+    public var language: String?
     
-    public init(uri: String, src: String, language: String){
+    public init(uri: String?, src: String?, language: String?){
         self.uri = uri
         self.src = src
         self.language = language

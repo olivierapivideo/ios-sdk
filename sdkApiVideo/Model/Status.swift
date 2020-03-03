@@ -9,10 +9,10 @@
 import Foundation
 
 public struct Status: Codable{
-    public var ingest: Ingest
-    public var encodingVideo: EncodingVideo
+    public var ingest: Ingest?
+    public var encodingVideo: EncodingVideo?
     
-    init(ingest: Ingest, encodingVideo: EncodingVideo) {
+    init(ingest: Ingest?, encodingVideo: EncodingVideo?) {
         self.ingest = ingest
         self.encodingVideo = encodingVideo
     }

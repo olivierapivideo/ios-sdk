@@ -9,19 +9,19 @@
 import Foundation
 
 public struct Video: Codable{
-    public var videoId: String
-    public var title: String
-    public var description: String
-    public var isPublic: Bool
-    public var publishedAt: String
-    public var tags: [String]
-    public var metaData: [Dictionary<String,String>]
-    public var assets: Assets
-    public var sourceVideo: SourceVideo
+    public var videoId: String?
+    public var title: String?
+    public var description: String?
+    public var isPublic: Bool?
+    public var publishedAt: String?
+    public var tags: [String]?
+    public var metaData: [Dictionary<String,String>]?
+    public var assets: Assets?
+    public var sourceVideo: SourceVideo?
     public var playerId: String?
-    public var isPanoramic: Bool
+    public var isPanoramic: Bool?
     
-    public init(videoId:String, title:String, description: String, isPublic: Bool, publishedAt: String, tags: [String], metaData: [Dictionary<String,String>], assets: Assets, sourceVideo: SourceVideo, playerId: String?, panoramic: Bool){
+    public init(videoId:String?, title:String?, description: String?, isPublic: Bool?, publishedAt: String?, tags: [String]?, metaData: [Dictionary<String,String>]?, assets: Assets?, sourceVideo: SourceVideo?, playerId: String?, panoramic: Bool?){
         self.videoId = videoId
         self.title = title
         self.description = description

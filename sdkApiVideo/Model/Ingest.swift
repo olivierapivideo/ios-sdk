@@ -9,11 +9,11 @@
 import Foundation
 
 public struct Ingest: Codable{
-    public var status: String
-    public var filesize: Int
-    public var receivedBytes: [ReceivedBytes]
+    public var status: String?
+    public var filesize: Int?
+    public var receivedBytes: [ReceivedBytes]?
     
-    init(status: String, filesize: Int, receivedBytes: [ReceivedBytes]) {
+    init(status: String?, filesize: Int?, receivedBytes: [ReceivedBytes]?) {
         self.status = status
         self.filesize = filesize
         self.receivedBytes = receivedBytes
