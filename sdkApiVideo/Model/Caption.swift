@@ -9,12 +9,12 @@
 import Foundation
 
 public struct Caption: Codable{
-    public var uri: String
-    public var src: String
-    public var srcLang: String
-    public var isDefault: Bool
+    public var uri: String?
+    public var src: String?
+    public var srcLang: String?
+    public var isDefault: Bool?
     
-    public init(uri: String, src: String, srcLang: String, isDefault: Bool){
+    public init(uri: String?, src: String?, srcLang: String?, isDefault: Bool?){
         self.uri = uri
         self.src = src
         self.srcLang = srcLang

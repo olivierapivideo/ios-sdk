@@ -18,7 +18,7 @@ public struct MetaDataEncoding: Codable{
     public var audioCodec: String?
     public var aspectRatio: String?
     
-    init(width: Int, height: Int, bitrate: Double, duration: Int, framerate: Int, samplerate: Int, videoCodec: String, audioCodec: String, aspectRatio: String?) {
+    init(width: Int?, height: Int?, bitrate: Double?, duration: Int?, framerate: Int?, samplerate: Int?, videoCodec: String?, audioCodec: String?, aspectRatio: String?) {
         self.width = width
         self.height = height
         self.bitrate = bitrate
