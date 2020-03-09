@@ -43,13 +43,13 @@ public class Pagination{
             case 400:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     print("resp : \(String(describing: resp))" )
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     print("resp : \(String(describing: resp))" )
                 }
             }

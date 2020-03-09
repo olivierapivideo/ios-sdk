@@ -28,26 +28,26 @@ public class PlayerApi{
     public func createPlayer(player: Player, completion: @escaping (Bool, Response?) ->()){
         let apiPath = self.environnement + ApiPaths.players.rawValue
         let body = [
-            "shapeMargin" : player.shapeMargin,
-            "shapeRadius" : player.shapeRadius,
-            "shapeAspect" : player.shapeAspect,
-            "shapeBackgroundTop" : player.shapeBackgroundTop,
-            "shapeBackgroundBottom" : player.shapeBackgroundBottom,
-            "text" : player.text,
-            "link" : player.link,
-            "linkHover" : player.linkHover,
-            "linkActive" : player.linkActive,
-            "trackPlayed" : player.trackPlayed,
-            "trackUnplayed" : player.trackUnplayed,
-            "trackBackground" : player.trackBackground,
-            "backgroundTop" : player.backgroundTop,
-            "backgroundBottom" : player.backgroundBottom,
-            "backgroundText" : player.backgroundText,
-            "enableApi" : player.enableApi,
-            "enableControls" : player.enableControls,
-            "forceAutoplay" : player.forceAutoplay,
-            "hideTitle" : player.hideTitle,
-            "forceLoop" : player.forceLoop,
+            "shapeMargin" : player.shapeMargin!,
+            "shapeRadius" : player.shapeRadius!,
+            "shapeAspect" : player.shapeAspect!,
+            "shapeBackgroundTop" : player.shapeBackgroundTop!,
+            "shapeBackgroundBottom" : player.shapeBackgroundBottom!,
+            "text" : player.text!,
+            "link" : player.link!,
+            "linkHover" : player.linkHover!,
+            "linkActive" : player.linkActive!,
+            "trackPlayed" : player.trackPlayed!,
+            "trackUnplayed" : player.trackUnplayed!,
+            "trackBackground" : player.trackBackground!,
+            "backgroundTop" : player.backgroundTop!,
+            "backgroundBottom" : player.backgroundBottom!,
+            "backgroundText" : player.backgroundText!,
+            "enableApi" : player.enableApi!,
+            "enableControls" : player.enableControls!,
+            "forceAutoplay" : player.forceAutoplay!,
+            "hideTitle" : player.hideTitle!,
+            "forceLoop" : player.forceLoop!,
             ] as Dictionary<String, AnyObject>
         var created = false
         var resp: Response?
@@ -72,7 +72,7 @@ public class PlayerApi{
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 }
                 completion(created, resp)
             }
@@ -116,13 +116,13 @@ public class PlayerApi{
                 case 400:
                     if(json != nil){
                         let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                         completion(players,resp)
                     }
                 default:
                     if(json != nil){
                         let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                         completion(players,resp)
                     }
                 }
@@ -161,13 +161,13 @@ public class PlayerApi{
             case 400:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(player,resp)
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(player,resp)
                 }
             }
@@ -180,28 +180,28 @@ public class PlayerApi{
     
     //MARK: Update Player
     public func updatePlayer(player: Player, completion: @escaping (Bool, Response?) ->()){
-        let apiPath = self.environnement + ApiPaths.players.rawValue + "/\(player.playerId)"
+        let apiPath = self.environnement + ApiPaths.players.rawValue + "/\(String(describing: player.playerId))"
         let body = [
-            "shapeMargin": player.shapeMargin,
-            "shapeRadius": player.shapeRadius,
-            "shapeAspect": player.shapeAspect,
-            "shapeBackgroundTop": player.shapeBackgroundTop,
-            "shapeBackgroundBottom": player.shapeBackgroundBottom,
-            "text": player.text,
-            "link": player.link,
-            "linkHover": player.linkHover,
-            "linkActive": player.linkActive,
-            "trackPlayed": player.trackPlayed,
-            "trackUnplayed": player.trackUnplayed,
-            "trackBackground": player.trackBackground,
-            "backgroundTop": player.backgroundTop,
-            "backgroundBottom": player.backgroundBottom,
-            "backgroundText": player.backgroundText,
-            "enableApi": player.enableApi,
-            "enableControls": player.enableControls,
-            "forceAutoplay": player.forceAutoplay,
-            "hideTitle": player.hideTitle,
-            "forceLoop" : player.forceLoop,
+            "shapeMargin": player.shapeMargin!,
+            "shapeRadius": player.shapeRadius!,
+            "shapeAspect": player.shapeAspect!,
+            "shapeBackgroundTop": player.shapeBackgroundTop!,
+            "shapeBackgroundBottom": player.shapeBackgroundBottom!,
+            "text": player.text!,
+            "link": player.link!,
+            "linkHover": player.linkHover!,
+            "linkActive": player.linkActive!,
+            "trackPlayed": player.trackPlayed!,
+            "trackUnplayed": player.trackUnplayed!,
+            "trackBackground": player.trackBackground!,
+            "backgroundTop": player.backgroundTop!,
+            "backgroundBottom": player.backgroundBottom!,
+            "backgroundText": player.backgroundText!,
+            "enableApi": player.enableApi!,
+            "enableControls": player.enableControls!,
+            "forceAutoplay": player.forceAutoplay!,
+            "hideTitle": player.hideTitle!,
+            "forceLoop" : player.forceLoop!,
             ] as Dictionary<String, AnyObject>
         var updated = false
         var resp: Response?
@@ -228,7 +228,7 @@ public class PlayerApi{
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 }
                 completion(updated, resp)
             }
@@ -266,7 +266,7 @@ public class PlayerApi{
             case 400, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(uploaded,resp)
                 }else{
                     completion(uploaded,resp)
@@ -313,7 +313,7 @@ public class PlayerApi{
             case 400, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(deleted,resp)
                 }else{
                     completion(deleted,resp)
@@ -321,7 +321,7 @@ public class PlayerApi{
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(deleted,resp)
                 }
             }

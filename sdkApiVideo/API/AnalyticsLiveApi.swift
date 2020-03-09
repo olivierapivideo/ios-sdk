@@ -88,14 +88,14 @@ public class AnalyticsLiveApi{
                 case 400, 401, 404:
                     if(json != nil){
                         let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                        resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                         completion(analyticsData, resp)
                         break
                     }
                 default:
                     if(json != nil){
                         let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                        resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                         completion(analyticsData, resp)
                         break
                     }

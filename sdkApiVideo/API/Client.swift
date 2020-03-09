@@ -60,11 +60,11 @@ public class Client{
                 completion(created, resp)
             case 400:
                 let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                resp = Response(url: (json!["type"] as! String), statusCode: stringStatus, message: (json!["title"] as! String))
                 completion(created, resp)
             default:
                 let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                resp = Response(url: (json!["type"] as! String), statusCode: stringStatus, message: (json!["title"] as! String))
                 completion(created, resp)
             }
             
@@ -108,11 +108,11 @@ public class Client{
                 completion(created, resp)
             case 400:
                 let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 completion(created, resp)
             default:
                 let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 completion(created, resp)
             }
             
