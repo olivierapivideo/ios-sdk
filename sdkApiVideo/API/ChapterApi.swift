@@ -57,13 +57,13 @@ public class ChapterApi{
             case 400, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(isUploaded, resp)
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(isUploaded,resp)
                 }
             }
@@ -100,13 +100,13 @@ public class ChapterApi{
             case 400, 401, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(chapter,resp)
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(chapter,resp)
                 }
             }
@@ -154,13 +154,13 @@ public class ChapterApi{
                 case 400, 401:
                     if(json != nil){
                         let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                         completion(chapters,resp)
                     }
                 default:
                     if(json != nil){
                         let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                         completion(chapters,resp)
                     }
                 }
@@ -201,7 +201,7 @@ public class ChapterApi{
             case 400, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(deleted,resp)
                 }else{
                     completion(deleted,resp)
@@ -209,7 +209,7 @@ public class ChapterApi{
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(deleted,resp)
                 }
             }

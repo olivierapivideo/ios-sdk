@@ -60,13 +60,13 @@ public class VideoApi{
             case 400:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 }
                 completion(uri, resp)
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 }
                 completion(uri, resp)
             }
@@ -155,12 +155,12 @@ public class VideoApi{
                 }
             case 400:
                 let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 
                 completion(uploaded, resp)
             default:
                 let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 
                 completion(uploaded, resp)
             }
@@ -287,11 +287,11 @@ public class VideoApi{
                 }
             case 400:
                 let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 completion(false, resp)
             default:
                 let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 completion(false, resp)
             }
             semaphore.signal()
@@ -343,13 +343,13 @@ public class VideoApi{
             case 400, 401, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(video,resp)
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(video,resp)
                 }
             }
@@ -396,13 +396,13 @@ public class VideoApi{
                 case 400, 401:
                     if(json != nil){
                         let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                         completion(videos,resp)
                     }
                 default:
                     if(json != nil){
                         let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                         completion(videos,resp)
                     }
                 }
@@ -442,13 +442,13 @@ public class VideoApi{
                 
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(isDeleted, resp)
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(isDeleted, resp)
                 }
             }
@@ -461,16 +461,16 @@ public class VideoApi{
     
     //MARK: Update video
     public func updateVideo(video: Video, completion: @escaping (Bool, Response?) -> ()){
-        let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(video.videoId)"
+        let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(String(describing: video.videoId))"
         
         var updated = false
         var resp: Response?
         
         let body = [
-            "title": video.title,
-            "description": video.description,
-            "public": video.isPublic,
-            "panoramic": video.isPanoramic
+            "title": video.title!,
+            "description": video.description!,
+            "public": video.isPublic!,
+            "panoramic": video.isPanoramic!
             ] as Dictionary<String, AnyObject>
         var request = URLRequest(url: URL(string: apiPath)!)
         request.httpMethod = "PATCH"
@@ -494,7 +494,7 @@ public class VideoApi{
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 }
                 completion(updated, resp)
             }
@@ -529,13 +529,13 @@ public class VideoApi{
             case 400:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(status,resp)
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(status,resp)
                 }
             }
@@ -571,13 +571,13 @@ public class VideoApi{
             case 400, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(isChanged, resp)
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(isChanged,resp)
                 }
             }
@@ -611,13 +611,13 @@ public class VideoApi{
             case 400, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(isChanged, resp)
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(isChanged,resp)
                 }
             }

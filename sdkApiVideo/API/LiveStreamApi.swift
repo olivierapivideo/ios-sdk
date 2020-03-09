@@ -65,7 +65,7 @@ public class LiveStreamApi{
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 }
                 completion(created, resp)
             }
@@ -99,13 +99,13 @@ public class LiveStreamApi{
             case 400:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(liveStream,resp)
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(liveStream,resp)
                 }
             }
@@ -152,13 +152,13 @@ public class LiveStreamApi{
                 case 400:
                     if(json != nil){
                         let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                         completion(liveStreams,resp)
                     }
                 default:
                     if(json != nil){
                         let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                         completion(liveStreams,resp)
                     }
                 }
@@ -210,7 +210,7 @@ public class LiveStreamApi{
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                 }
                 completion(updated, resp)
             }
@@ -246,7 +246,7 @@ public class LiveStreamApi{
             case 400, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(deleted,resp)
                 }else{
                     completion(deleted,resp)
@@ -254,7 +254,7 @@ public class LiveStreamApi{
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(deleted,resp)
                 }
             }
@@ -289,13 +289,13 @@ public class LiveStreamApi{
             case 400, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(isChanged, resp)
                 }
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(isChanged,resp)
                 }
             }
@@ -328,7 +328,7 @@ public class LiveStreamApi{
             case 400, 404:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(deleted,resp)
                 }else{
                     completion(deleted,resp)
@@ -336,7 +336,7 @@ public class LiveStreamApi{
             default:
                 if(json != nil){
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as! String, statusCode: stringStatus, message: json!["title"] as! String)
+                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
                     completion(deleted,resp)
                 }
             }
