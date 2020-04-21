@@ -1,5 +1,5 @@
 PODS:
-  - HaishinKit (1.0.4):
+  - HaishinKit (1.0.6):
     - Logboard (~> 2.1.2)
   - Logboard (2.1.2)
 
@@ -13,7 +13,7 @@ SPEC REPOS:
     - Logboard
 
 SPEC CHECKSUMS:
-  HaishinKit: b911679d362aac54afd835a154b17b3b6aaa9519
+  HaishinKit: b3d14a39257c5afad19ee1ae94d0d8bfd15a933e
   Logboard: e3342fa111e26268bb89577e6a40a0660a423ddd
 
 PODFILE CHECKSUM: 439c9c4ba7d54800602a341c1a613f9f39535aa5

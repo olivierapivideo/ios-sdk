@@ -347,7 +347,7 @@ public class LiveStreamApi{
         
     }
     
-    public func StartLiveStreamFlux(liveStream: LiveStream, captureQuality: String, streamQuality: String, fps: Float64){
+    public func StartLiveStreamFlux(liveStream: LiveStream, captureQuality: String, streamQuality: String){
         
         self.livestreamkey = liveStream.streamKey
         
@@ -366,13 +366,10 @@ public class LiveStreamApi{
             print(error.description)
         }
         
-        rtmpStream.audioSettings = [
-            .sampleRate: sampleRate,
-            .muted: true
-        ]
+        
         setCaptureVideo(quality: captureQuality)
         setStreamVideoQuality(quality: streamQuality)
-        rtmpStream.captureSettings[.fps] = fps
+        
         
         rtmpConnection.addEventListener(.rtmpStatus, selector: #selector(rtmpStatusHandler), observer: self)
         rtmpConnection.addEventListener(.ioError, selector: #selector(rtmpErrorHandler), observer: self)
@@ -395,12 +392,17 @@ public class LiveStreamApi{
             rtmpStream.videoSettings = [
                 .width: 352,
                 .height: 240,
+                .bitrate: 400 * 1000, // video output bitrate
+                .maxKeyFrameIntervalDuration: 2, // key frame / sec
             ]
+            
         case "360p":
             // 480 * 360
             rtmpStream.videoSettings = [
                 .width: 480,
                 .height: 360,
+                .bitrate: 800 * 1000, // video output bitrate
+                .maxKeyFrameIntervalDuration: 2, // key frame / sec
             ]
             
         case "480p":
@@ -408,31 +410,41 @@ public class LiveStreamApi{
             rtmpStream.videoSettings = [
                 .width: 858,
                 .height: 480,
+                .bitrate: 1200 * 1000, // video output bitrate
+                .maxKeyFrameIntervalDuration: 2, // key frame / sec
             ]
         case "720p":
             // 1280 * 720
             rtmpStream.videoSettings = [
                 .width: 1280,
                 .height: 720,
+                .bitrate: 2250 * 1000, // video output bitrate
+                .maxKeyFrameIntervalDuration: 2, // key frame / sec
             ]
         case "1080p":
             // 1920 * 1080
             rtmpStream.videoSettings = [
                 .width: 1920,
                 .height: 1080,
-                .profileLevel: kVTProfileLevel_H264_High_4_0
+                .profileLevel: kVTProfileLevel_H264_High_4_0,
+                .bitrate: 4500 * 1000, // video output bitrate
+                .maxKeyFrameIntervalDuration: 2, // key frame / sec
             ]
         case "2160p":
             // 3860 * 2160
             rtmpStream.videoSettings = [
                 .width: 3860,
                 .height: 2160,
-                .profileLevel: kVTProfileLevel_H264_High_AutoLevel
+                .profileLevel: kVTProfileLevel_H264_High_AutoLevel,
+                .bitrate: 160000 * 1000, // video output bitrate
+                .maxKeyFrameIntervalDuration: 2, // key frame / sec
             ]
         default:
             rtmpStream.videoSettings = [
                 .width: 480,
                 .height: 360,
+                .bitrate: 400 * 1000, // video output bitrate
+                .maxKeyFrameIntervalDuration: 2, // key frame / sec
             ]
         }
     }
@@ -442,58 +454,99 @@ public class LiveStreamApi{
         case "240p":
             // 352 * 240
             rtmpStream.captureSettings = [
-                .sessionPreset: AVCaptureSession.Preset.low,
-                .continuousAutofocus: true,
-                .continuousExposure: true,
-                .preferredVideoStabilizationMode: AVCaptureVideoStabilizationMode.auto
-            ]
-        case "360p":
-            // 480 * 360
-            rtmpStream.captureSettings = [
-                .sessionPreset: AVCaptureSession.Preset.low,
+                .fps: 60,
+                .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
                 .preferredVideoStabilizationMode: AVCaptureVideoStabilizationMode.auto
             ]
             
-        case "480p":
-            // 858 * 480
+            rtmpStream.audioSettings = [
+                .muted: false, // mute audio
+                .bitrate: 128 * 1000,
+            ]
+        case "360p":
+            // 480 * 360
             rtmpStream.captureSettings = [
-                .sessionPreset: AVCaptureSession.Preset.vga640x480,
+                .fps: 60,
+                .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
                 .preferredVideoStabilizationMode: AVCaptureVideoStabilizationMode.auto
+            ]
+            
+            rtmpStream.audioSettings = [
+                .muted: false, // mute audio
+                .bitrate: 128 * 1000,
+            ]
+            
+        case "480p":
+            // 858 * 480
+            rtmpStream.captureSettings = [
+                .fps: 60,
+                .sessionPreset: AVCaptureSession.Preset.inputPriority,
+                .continuousAutofocus: true,
+                .continuousExposure: true,
+                .preferredVideoStabilizationMode: AVCaptureVideoStabilizationMode.auto
+            ]
+            
+            rtmpStream.audioSettings = [
+                .muted: false, // mute audio
+                .bitrate: 128 * 1000,
             ]
         case "720p":
             // 1280 * 720
             rtmpStream.captureSettings = [
-                .sessionPreset: AVCaptureSession.Preset.hd1280x720,
+                .fps: 60,
+                .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
                 .preferredVideoStabilizationMode: AVCaptureVideoStabilizationMode.auto
+            ]
+            
+            rtmpStream.audioSettings = [
+                .muted: false, // mute audio
+                .bitrate: 128 * 1000,
             ]
         case "1080p":
             // 1920 * 1080
             rtmpStream.captureSettings = [
-                .sessionPreset: AVCaptureSession.Preset.hd1920x1080,
+                .fps: 60,
+                .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
                 .preferredVideoStabilizationMode: AVCaptureVideoStabilizationMode.auto
+            ]
+            rtmpStream.audioSettings = [
+                .muted: false, // mute audio
+                .bitrate: 128 * 1000,
             ]
         case "2160p":
             // 3860 * 2160
             rtmpStream.captureSettings = [
-                .sessionPreset: AVCaptureSession.Preset.hd4K3840x2160,
+                .fps: 60,
+                .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
                 .preferredVideoStabilizationMode: AVCaptureVideoStabilizationMode.auto
             ]
+            
+            rtmpStream.audioSettings = [
+                .muted: false, // mute audio
+                .bitrate: 128 * 1000,
+            ]
         default:
             rtmpStream.captureSettings = [
-                .sessionPreset: AVCaptureSession.Preset.low,
+                .fps: 60,
+                .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
                 .preferredVideoStabilizationMode: AVCaptureVideoStabilizationMode.auto
+            ]
+            
+            rtmpStream.audioSettings = [
+                .muted: false, // mute audio
+                .bitrate: 128 * 1000,
             ]
         }
     }
