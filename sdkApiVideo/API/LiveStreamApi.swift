@@ -347,7 +347,7 @@ public class LiveStreamApi{
         
     }
     
-    public func StartLiveStreamFlux(liveStream: LiveStream, captureQuality: String, streamQuality: String){
+    public func StartLiveStreamFlux(liveStream: LiveStream, captureQuality: String, streamQuality: String, fps: Float64){
         
         self.livestreamkey = liveStream.streamKey
         
@@ -367,7 +367,7 @@ public class LiveStreamApi{
         }
         
         
-        setCaptureVideo(quality: captureQuality)
+        setCaptureVideo(quality: captureQuality, fps: fps)
         setStreamVideoQuality(quality: streamQuality)
         
         
@@ -393,7 +393,7 @@ public class LiveStreamApi{
                 .width: 352,
                 .height: 240,
                 .bitrate: 400 * 1000, // video output bitrate
-                .maxKeyFrameIntervalDuration: 2, // key frame / sec
+                .maxKeyFrameIntervalDuration: 2,// key frame / sec
             ]
             
         case "360p":
@@ -449,12 +449,12 @@ public class LiveStreamApi{
         }
     }
     
-    private func setCaptureVideo(quality: String){
+    private func setCaptureVideo(quality: String, fps: Float64){
         switch quality {
         case "240p":
             // 352 * 240
             rtmpStream.captureSettings = [
-                .fps: 60,
+                .fps: fps,
                 .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
@@ -468,7 +468,7 @@ public class LiveStreamApi{
         case "360p":
             // 480 * 360
             rtmpStream.captureSettings = [
-                .fps: 60,
+                .fps: fps,
                 .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
@@ -483,7 +483,7 @@ public class LiveStreamApi{
         case "480p":
             // 858 * 480
             rtmpStream.captureSettings = [
-                .fps: 60,
+                .fps: fps,
                 .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
@@ -497,7 +497,7 @@ public class LiveStreamApi{
         case "720p":
             // 1280 * 720
             rtmpStream.captureSettings = [
-                .fps: 60,
+                .fps: fps,
                 .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
@@ -511,7 +511,7 @@ public class LiveStreamApi{
         case "1080p":
             // 1920 * 1080
             rtmpStream.captureSettings = [
-                .fps: 60,
+                .fps: fps,
                 .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
@@ -524,7 +524,7 @@ public class LiveStreamApi{
         case "2160p":
             // 3860 * 2160
             rtmpStream.captureSettings = [
-                .fps: 60,
+                .fps: fps,
                 .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
@@ -537,7 +537,7 @@ public class LiveStreamApi{
             ]
         default:
             rtmpStream.captureSettings = [
-                .fps: 60,
+                .fps: 24,
                 .sessionPreset: AVCaptureSession.Preset.inputPriority,
                 .continuousAutofocus: true,
                 .continuousExposure: true,
