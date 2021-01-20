@@ -1,3 +1,4 @@
+![](https://github.com/apivideo/API_OAS_file/blob/master/apivideo_banner.png)
 # IOS SDK API.VIDEO
 
 ![Language](https://img.shields.io/badge/language-Swift%205.1-orange.svg)
