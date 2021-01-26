@@ -44,34 +44,18 @@ public class VideoApi{
         var uri = ""
         
         let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201, 202:
-                if(json != nil){
-                    let source = json?["source"] as! Dictionary<String, AnyObject>
-                    uri = source["uri"] as! String
-                    completion(uri, resp)
-                    
-                }else{
-                    completion(uri, resp)
-                }
-            case 400:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                }
+        TaskExecutor().execute(session: session, request: request){ (data, response) in
+            if(data != nil){
+                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
+
+                let source = json?["source"] as! Dictionary<String, AnyObject>
+                uri = source["uri"] as! String
                 completion(uri, resp)
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                }
+            }else{
+                resp = response
                 completion(uri, resp)
             }
-        })
-        task.resume()
+        }
     }
     
     
@@ -129,6 +113,8 @@ public class VideoApi{
     
     
     
+    
+    
     //MARK: Upload small video
     public func uploadSmallVideoFile(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Bool, Response?) -> ()){
         let apiPath = self.environnement + videoUri
@@ -144,28 +130,113 @@ public class VideoApi{
         var uploaded = false
         
         let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {(data, response, error) in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
-                if(json != nil){
-                    uploaded = true
-                    completion(uploaded, resp)
-                }
-            case 400:
-                let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                
+        TaskExecutor().execute(session: session, request: request){(data, response) in
+            if(data != nil){
+                uploaded = true
                 completion(uploaded, resp)
-            default:
-                let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                
+            }else{
+                resp = response
                 completion(uploaded, resp)
             }
-        })
-        task.resume()
+        }
+    }
+    
+    public func createStream(title: String, description: String, fileName: String, filePath: String, url: URL, completion: @escaping (Bool, Response?) -> ()){
+        initVideo(title: title, description: description){ (uri, resp) in
+            var videoCreated = false
+            //if Error
+            if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
+                //return videoCreated = false
+                //return descripted response
+                completion(videoCreated, resp)
+            }
+            // if video is created
+            else{
+                // if no error with the video uri
+                if(uri != "") {
+                    // get data lenght to upload a big or a small file
+                    let data = try? Data(contentsOf: url)
+                    let dataLen = data!.count
+                    // if data lenght < 30mb upload small file else upload big file
+                    if(dataLen < ((1024 * 1000) * 30)){
+                        print("choose a largest video")
+                    }else{
+                        self.uploadLargeStream(videoUri: uri, fileName: fileName, filePath: filePath, url: url){ (crea, resp) in
+                            // if video is uploaded
+                            if(crea){
+                                videoCreated = crea
+                                completion(videoCreated, resp)
+                            }
+                            // if video upload return error
+                            else{
+                                completion(videoCreated, resp)
+                            }
+                        }
+                    }
+                }
+                // if error with the uri
+                else{
+                    completion(videoCreated, resp)
+                }
+            }
+        }
+    }
+    
+    //MARK: Upload Large video by stream (WIP)
+    public func uploadLargeStream(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Bool, Response?) -> ()){
+        let chunkSize: Int = ((1024 * 1024) * 30) // MB
+        let apiPath = self.environnement + videoUri
+        var request = URLRequest(url: URL(string: apiPath)!)
+        let boundary = generateBoundaryString()
+        let data = try? Data(contentsOf: url)
+        let fileLength = data!.count
+        let stream = InputStream.init(url: url)
+        var bytesRead = 0
+        
+        
+        
+        print("fileLength \(fileLength)")
+        print("chunkSize \(chunkSize)")
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: chunkSize)
+        for offset in stride(from: 0, through: fileLength, by: chunkSize){
+            let input = InputStream.init(url: url)
+            var currentPosition = offset + chunkSize - 1
+            var read: Int
+            var output: OutputStream? = OutputStream()
+            
+            
+            if(currentPosition > fileLength){
+                currentPosition = fileLength - 1
+            }else{
+                read = (input?.read(buffer, maxLength: chunkSize))!
+                output!.write(buffer, maxLength: read)
+                
+                var inStream: InputStream? = nil
+                var outStream: OutputStream? = nil
+                Stream.getBoundStreams(withBufferSize: chunkSize, inputStream: &inStream, outputStream: &outStream)
+                
+                
+            }
+            
+            //output.write(buffer, maxLength: read)
+            
+            request.httpMethod = "POST"
+            request.setValue("bytes \(offset)-\(currentPosition)/\(fileLength)", forHTTPHeaderField: "Content-Range")
+            request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+            request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
+//            request.httpBodyStream()
+            
+//            let config = URLSessionConfiguration.default
+//            request.httpBody = try? createBodyWithData(data: data, filePath: filePath, fileName: fileName, boundary: boundary)
+            let session = URLSession.shared
+            let task = session.uploadTask(withStreamedRequest: request as URLRequest)
+            task.resume()
+            print("offset : \(offset)")
+            print("current Pos : \(currentPosition)")
+        }
+        
+        completion(true, nil)
+        
     }
     
     private func createBodyWithUrl(url: URL, filePath: String, fileName: String, boundary: String) throws -> Data{
@@ -189,6 +260,12 @@ public class VideoApi{
         body.append("\r\n")
         body.append("--\(boundary)--\r\n")
         return body
+    }
+    
+    private func createBody(data: Data, filePath: String, fileName: String, boundary: String) throws -> InputStream{
+        let body = try createBodyWithData(data: data, filePath: filePath, fileName: fileName, boundary: boundary)
+        let inputStream = InputStream(data: body)
+        return inputStream
     }
     
     private func generateBoundaryString() -> String {
@@ -310,16 +387,16 @@ public class VideoApi{
     /// Retrun optional UInt64
     func fileSizeInBytes(fromPath path: String) -> Int? {
         guard let size = try? FileManager.default.attributesOfItem(atPath: path)[FileAttributeKey.size],
-            let fileSize = size as? Int else {
-                return nil
+              let fileSize = size as? Int else {
+            return nil
         }
         return fileSize
     }
     
+    
     //MARK: Get video by id
     public func getVideoByID(videoId: String, completion: @escaping (Video?, Response?) -> ()){
         var video: Video?
-        var resp: Response?
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/" + videoId
         var request = URLRequest(url: URL(string: apiPath)!)
         
@@ -331,32 +408,13 @@ public class VideoApi{
         group.enter()
         
         let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200:
-                // get error with decoder
-                video = try? self.decoder.decode(Video.self, from: data!)
-                completion(video, resp)
-                
-            case 400, 401, 404:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(video,resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(video,resp)
-                }
+        TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+            if(data != nil){
+                let jsonData = try? JSONSerialization.data(withJSONObject:data!)
+                video = try? self.decoder.decode(Video.self, from: jsonData!)
             }
-            
-            group.leave()
-        })
-        task.resume()
+            completion(video, response)
+        }
         group.wait()
     }
     
@@ -382,33 +440,20 @@ public class VideoApi{
             group.enter()
             
             let session = URLSession.shared
-            let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-                let httpResponse = response as? HTTPURLResponse
-                switch httpResponse?.statusCode{
-                case 200:
-                    // get error with decoder
+            
+            TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+                if(data != nil){
+                    let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                     for data in json!["data"] as! [AnyObject]{
                         let jsonData = try? JSONSerialization.data(withJSONObject:data)
                         let video = try? self.decoder.decode(Video.self, from: jsonData!)
                         videos.append(video!)
                     }
-                case 400, 401:
-                    if(json != nil){
-                        let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                        completion(videos,resp)
-                    }
-                default:
-                    if(json != nil){
-                        let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                        completion(videos,resp)
-                    }
+                }else{
+                    resp = response
+                    completion(videos, resp)
                 }
-                group.leave()
-            })
-            task.resume()
+            }
             group.wait()
         }
         completion(videos, resp)
@@ -431,37 +476,22 @@ public class VideoApi{
         var resp: Response?
         
         let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 204:
+        
+        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+            if(data != nil){
                 isDeleted = true
                 completion(isDeleted, resp)
-            case 400, 404:
-                
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(isDeleted, resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(isDeleted, resp)
-                }
+            }else{
+                resp = response
+                completion(isDeleted, resp)
             }
-    
-            group.leave()
-        })
-        task.resume()
+        }
         group.wait()
     }
     
     //MARK: Update video
     public func updateVideo(video: Video, completion: @escaping (Bool, Response?) -> ()){
-        let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(String(describing: video.videoId))"
+        let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(String(describing: video.videoId!))"
         
         var updated = false
         var resp: Response?
@@ -471,7 +501,7 @@ public class VideoApi{
             "description": video.description!,
             "public": video.isPublic!,
             "panoramic": video.isPanoramic!
-            ] as Dictionary<String, AnyObject>
+        ] as Dictionary<String, AnyObject>
         var request = URLRequest(url: URL(string: apiPath)!)
         request.httpMethod = "PATCH"
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
@@ -482,25 +512,18 @@ public class VideoApi{
         group.enter()
         
         let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
+        TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
             let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
-                if(json != nil){
+            if(json != nil){
+                if(data != nil){
                     updated = true
                     completion(updated, resp)
+                }else{
+                    resp = response
+                    completion(updated, resp)
                 }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                }
-                completion(updated, resp)
             }
-            group.leave()
-        })
-        task.resume()
+        }
         group.wait()
         
     }
@@ -519,28 +542,16 @@ public class VideoApi{
         
         
         let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200:
+        TaskExecutor().execute(session: session, request: request){ (data, response) in
+            if(data != nil){
                 status = try! self.decoder.decode(Status.self, from: data!)
                 completion(status, resp)
-            case 400:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(status,resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(status,resp)
-                }
             }
-        })
-        task.resume()
+            else{
+                resp = response
+                completion(status, resp)
+            }
+        }
     }
     
     //MARK: Pick Thumbnail
@@ -549,7 +560,7 @@ public class VideoApi{
         
         let body = [
             "timecode": timecode,
-            ] as Dictionary<String, String>
+        ] as Dictionary<String, String>
         
         var request = URLRequest(url: URL(string: apiPath)!)
         request.httpMethod = "PATCH"
@@ -561,28 +572,16 @@ public class VideoApi{
         var resp: Response?
         
         let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
+        
+        TaskExecutor().execute(session: session, request: request){ (data, response) in
+            if(data != nil){
                 isChanged = true
                 completion(isChanged, resp)
-            case 400, 404:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(isChanged, resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(isChanged,resp)
-                }
+            }else{
+                resp = response
+                completion(isChanged, resp)
             }
-        })
-        task.resume()
+        }
     }
     
     
@@ -601,28 +600,15 @@ public class VideoApi{
         var resp: Response?
         
         let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
+        TaskExecutor().execute(session: session, request: request){ (data, response) in
+            if(data != nil){
                 isChanged = true
                 completion(isChanged, resp)
-            case 400, 404:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(isChanged, resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(isChanged,resp)
-                }
+            }else{
+                resp = response
+                completion(isChanged,resp)
             }
-        })
-        task.resume()
+        }
     }
 }
 extension Data {
@@ -637,5 +623,14 @@ extension Data {
         if let data = string.data(using: encoding) {
             append(data)
         }
+    }
+}
+
+extension Stream {
+    func boundPair(bufferSize: Int) -> (inputStream: InputStream, outputStream: OutputStream) {
+        var inStream: InputStream? = nil
+        var outStream: OutputStream? = nil
+        Stream.getBoundStreams(withBufferSize: bufferSize, inputStream: &inStream, outputStream: &outStream)
+        return (inStream!, outStream!)
     }
 }
