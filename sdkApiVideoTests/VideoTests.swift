@@ -11,26 +11,89 @@ import XCTest
 
 class VideoTests: XCTestCase {
     let authClient = Client()
-
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    
+    //MARK: test upload stream video success
+    func testStreamUploadSuccess(){
+        let expectation = self.expectation(description: "request should succeed")
+        var isAuthentified = false
+        var isUploaded = false
+        var response: Response?
+        var videoApi: VideoApi!
+        let filename = "tennis.mp4"
+        let bundle = Bundle(for: type(of: self))
+        let filepath = bundle.path(forResource: "tennis court", ofType: "mp4")!
+        let url = bundle.url(forResource: "tennis court", withExtension: "mp4")
+        
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
+            if authentified{
+                isAuthentified = authentified
+                videoApi = self.authClient.videoApi
+            }else{
+                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+            }
         }
+        
+        if isAuthentified{
+            videoApi.create(title: filename, description: "desc", fileName: filename, filePath: filepath, url: url!){(uploaded, resp) in
+                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
+                    expectation.fulfill()
+                    isUploaded = uploaded
+                    response = resp
+                }else{
+                    expectation.fulfill()
+                    isUploaded = uploaded
+                    response = resp
+                }
+            }
+        }else{
+            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        }
+        
+        waitForExpectations(timeout: 100, handler: nil)
+        XCTAssertNil(response)
     }
+    //MARK: test init video success
+    func testuploadLargeStream_Success(){
+        let expectation = self.expectation(description: "request should succeed")
+        var isAuthentified = false
+        var isUploaded = false
+        let videoUri = "/videos/vi1kY2TTlIvImPNWq9ZEPb27/source"
+        var response: Response?
+        var videoApi: VideoApi!
+        let filename = "tennis.mp4"
+        let bundle = Bundle(for: type(of: self))
+        let filepath = bundle.path(forResource: "tennis court", ofType: "mp4")!
+        let url = bundle.url(forResource: "tennis court", withExtension: "mp4")
+        
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
+            if authentified{
+                isAuthentified = authentified
+                videoApi = self.authClient.videoApi
+            }else{
+                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+            }
+        }
+        
+        if isAuthentified{
+            videoApi.uploadLargeStream(videoUri: videoUri, fileName: filename, filePath: filepath, url: url!){(uploaded, resp) in
+                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
+                    expectation.fulfill()
+                    isUploaded = uploaded
+                    response = resp
+                }else{
+                    expectation.fulfill()
+                    isUploaded = uploaded
+                    response = resp
+                }
+            }
+        }else{
+            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        }
+        
+        waitForExpectations(timeout: 100, handler: nil)
+        XCTAssertNil(response)
+    }
+    
     
     //MARK: test init video success
     func testInitVideo_success(){
@@ -42,7 +105,7 @@ class VideoTests: XCTestCase {
         var response: Response?
         var videoApi: VideoApi!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -84,7 +147,7 @@ class VideoTests: XCTestCase {
         var response: Response?
         var videoApi: VideoApi!
 
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTV"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -124,25 +187,24 @@ class VideoTests: XCTestCase {
         var isUploaded = false
         var response: Response?
         var videoApi: VideoApi!
-        let videoUri = "/videos/vi41UsGbyZ9WnUfeC6ejKBQM/source"
-        let filename = "lapin.mp4"
+        let videoUri = "/videos/vi3doobviYa8f7r2HoptU2aG/source"
+        let filename = "Watermelon.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "lapin", ofType: "mp4")!
-        let url = bundle.url(forResource: "lapin", withExtension: "mp4")
+        let filepath = bundle.path(forResource: "Watermelon.mp4", ofType: "mp4") ?? "/Users/romainpetit/Documents/GitHub/ios-sdk/sdkApiVideoTests/asset/Watermelon.mp4"
+        let url = URL(fileURLWithPath: filepath)
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
             }else{
-                expectation.fulfill()
                 print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
             }
         }
         
         
         if isAuthentified{
-            videoApi.uploadSmallVideoFile(videoUri: videoUri, fileName: filename, filePath: filepath, url: url!){ (uploaded, resp) in
+            videoApi.uploadSmallVideoFile(videoUri: videoUri, fileName: filename, filePath: filepath, url: url){ (uploaded, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
                     isUploaded = uploaded
@@ -175,10 +237,10 @@ class VideoTests: XCTestCase {
         let videoUri = "/videos/vi41UsGbyZ9WnUfeC6e/source"
         let filename = "lapin.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "lapin", ofType: "mp4")!
-        let url = bundle.url(forResource: "lapin", withExtension: "mp4")
+        let filepath = bundle.path(forResource: "video-test", ofType: "mp4")!
+        let url = bundle.url(forResource: "video-test", withExtension: "mp4")
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -186,6 +248,7 @@ class VideoTests: XCTestCase {
                 print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
             }
         }
+        
         if isAuthentified{
             videoApi.uploadSmallVideoFile(videoUri: videoUri, fileName: filename, filePath: filepath, url: url!){ (uploaded, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
@@ -217,14 +280,14 @@ class VideoTests: XCTestCase {
         var isUploaded = false
         var response: Response?
         var videoApi: VideoApi!
-        let videoUri = "/videos/vi4Bx5ZlskuS356pvVwKYJxH/source"
+        let videoUri = "/videos/vi4TR6kBRQx7dnaCR7DcQtqX/source"
         _ = Bundle(for: type(of: self)).path(forResource: "rabit", ofType: "mp4")
         let filename = "rabit.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "rabit", ofType: "mp4")!
-        let url = bundle.url(forResource: "rabit", withExtension: "mp4")!
+        let filepath = bundle.path(forResource: "2019_03_03_15_34_31", ofType: "mp4")!
+        let url = bundle.url(forResource: "2019_03_03_15_34_31", withExtension: "mp4")!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -266,10 +329,10 @@ class VideoTests: XCTestCase {
         _ = Bundle(for: type(of: self)).path(forResource: "rabit", ofType: "mp4")
         let filename = "rabit.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "rabit", ofType: "mp4")!
-        let url = bundle.url(forResource: "rabit", withExtension: "mp4")!
+        let filepath = bundle.path(forResource: "2019_03_03_15_34_31", ofType: "mp4")!
+        let url = bundle.url(forResource: "2019_03_03_15_34_31", withExtension: "mp4")!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -392,13 +455,13 @@ class VideoTests: XCTestCase {
     //MARK: test Get video by id Success
     func testGetVideoById_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi4VElLT2UE0UdrxQzTl2R2x"
+        let videoId = "vi4Iw8Xnuy2ATAsw2GVH7s9A"
         var isAuthentified = false
         var videoApi: VideoApi!
         var video: Video?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -436,7 +499,7 @@ class VideoTests: XCTestCase {
         var video: Video?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -509,7 +572,7 @@ class VideoTests: XCTestCase {
         var isAuthentified = false
         var videoApi: VideoApi!
 
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -535,20 +598,20 @@ class VideoTests: XCTestCase {
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertNotNil(myVideos)
         XCTAssertNotNil(response)
-        XCTAssertFalse(myVideos!.count == 0, "the list must be equal to 0")
+        XCTAssertTrue(myVideos!.count == 0, "the list must be equal to 0")
         
     }
     
     //MARK: test Delete Video Success
     func testDeleteVideo_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi41UsGbyZ9WnUfeC6ejKBQM"
+        let videoId = "vi7TcP4YXaOJTiRYuE1OGTb2"
         var isAuthentified = false
         var videoApi: VideoApi!
         var isDeleted = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -574,8 +637,45 @@ class VideoTests: XCTestCase {
         XCTAssertNil(response)
     }
     
-    //MARK: test Delete Video Error
+    //MARK: test Update video info
+    func testUpdateVideo_success(){
+        let expectation = self.expectation(description: "request should succeed")
+        let videoId = "vi52DHXFPKhqlidqBkeMdk6a"
+        var isAuthentified = false
+        var videoApi: VideoApi!
+        var isUpdated = false
+        var response: Response?
+        
+        let video = Video(videoId: videoId, title: "video update", description: "video desc", isPublic: true, publishedAt: nil, tags: nil, metaData: nil, assets: nil, sourceVideo: nil, playerId: nil, panoramic: false)
+        
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+            if authentified{
+                isAuthentified = authentified
+                videoApi = self.authClient.videoApi
+            }else{
+                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+            }
+        }
+        
+        if(isAuthentified){
+            videoApi.updateVideo(video: video){(updated, resp) in
+                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
+                    expectation.fulfill()
+                    isUpdated = updated
+                    response = resp
+                }else{
+                    expectation.fulfill()
+                    isUpdated = updated
+                    response = resp
+                }
+            }
+        }
+        waitForExpectations(timeout: 10, handler: nil)
+        XCTAssertTrue(isUpdated)
+        XCTAssertNil(response)
+    }
     
+    //MARK: test Delete Video Error
     func testDeleteVideo_error(){
         let expectation = self.expectation(description: "request should succeed")
         let videoId = "vi41UsGbWnUfejKBQM"
@@ -584,7 +684,7 @@ class VideoTests: XCTestCase {
         var isDeleted = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -614,14 +714,14 @@ class VideoTests: XCTestCase {
     //MARK: test Get Video Status Success
     func testGetStatus_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi7Qh3UlGKquTWctVRFXyi0C"
+        let videoId = "vi5DjJ6QRAX0nYOZKxrlT6rS"
         var isAuthentified = false
         var videoApi: VideoApi!
 
         var status: Status?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -657,7 +757,7 @@ class VideoTests: XCTestCase {
         var status: Status?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -686,14 +786,14 @@ class VideoTests: XCTestCase {
     //MARK: test Pick Thumbnail Success
     func testPickThumbnail_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi7Qh3UlGKquTWctVRFXyi0C"
+        let videoId = "vi5DjJ6QRAX0nYOZKxrlT6rS"
         var isAuthentified = false
         var videoApi: VideoApi!
 
         var isChanged = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -703,7 +803,7 @@ class VideoTests: XCTestCase {
         }
         
         if(isAuthentified){
-            videoApi.pickThumbnail(videoId: videoId, timecode: "00:01:00.00"){(changed, resp) in
+            videoApi.pickThumbnail(videoId: videoId, timecode: "00:01:36.00"){(changed, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
                     response = resp
@@ -722,13 +822,13 @@ class VideoTests: XCTestCase {
     //MARK: test Pick Thumbnail Error
     func testPickThumbnail_error(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi7Qh3UlGKquTWFXyi0C"
+        let videoId = "vi5DjJ6QRAX0nYOZKxrlT6rS"
         var isAuthentified = false
         var videoApi: VideoApi!
         var isChanged = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -757,7 +857,7 @@ class VideoTests: XCTestCase {
     //MARK: test Upload Image as Thumbnail Success
     func testUplaodImageThumbnail_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi7Qh3UlGKquTWctVRFXyi0C"
+        let videoId = "vi2k0uesF8c6a730BnRDDRVG"
         var isAuthentified = false
         var videoApi: VideoApi!
         let filename = "foret.jpg"
@@ -769,7 +869,7 @@ class VideoTests: XCTestCase {
         var isUploaded = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
+        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -836,7 +936,6 @@ class VideoTests: XCTestCase {
         }
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertFalse(isUploaded)
-        print("response : \(String(describing: response))")
         XCTAssertNotNil(response)
     }
     

@@ -90,8 +90,7 @@ public class VideoApi{
                             }
                         }
                     }else{
-                        self.uploadBigVideoFile(videoUri: uri, fileName: fileName, filePath: filePath, url: url){ (crea, resp) in
-                            // if video is uploaded
+                        self.uploadLargeStream(videoUri: uri, fileName: fileName, filePath: filePath, url: url){(crea, resp) in
                             if(crea){
                                 videoCreated = crea
                                 completion(videoCreated, resp)
@@ -100,7 +99,19 @@ public class VideoApi{
                             else{
                                 completion(videoCreated, resp)
                             }
+                            
                         }
+//                        self.uploadBigVideoFile(videoUri: uri, fileName: fileName, filePath: filePath, url: url){ (crea, resp) in
+//                            // if video is uploaded
+//                            if(crea){
+//                                videoCreated = crea
+//                                completion(videoCreated, resp)
+//                            }
+//                            // if video upload return error
+//                            else{
+//                                completion(videoCreated, resp)
+//                            }
+//                        }
                     }
                 }
                 // if error with the uri
@@ -141,103 +152,62 @@ public class VideoApi{
         }
     }
     
-    public func createStream(title: String, description: String, fileName: String, filePath: String, url: URL, completion: @escaping (Bool, Response?) -> ()){
-        initVideo(title: title, description: description){ (uri, resp) in
-            var videoCreated = false
-            //if Error
-            if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                //return videoCreated = false
-                //return descripted response
-                completion(videoCreated, resp)
+    //MARK: Upload Large video by stream (WIP)
+    public func uploadLargeStream(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Bool, Response?) -> ()){
+        let chunkSize: Int = ((1024 * 1024) * 10) // MB
+        let apiPath = self.environnement + videoUri
+        var urlRequest = URLRequest(url: URL(string: apiPath)!)
+        let data = try? Data(contentsOf: url)
+        let fileSize = data!.count
+        
+        let semaphore = DispatchSemaphore(value: 0)
+        
+        print("fileLength \(fileSize)")
+        print("chunkSize \(chunkSize)")
+        
+        var readBytes: Int = 0
+        
+        for offset in stride(from: 0, through: fileSize, by: chunkSize){
+            let fileStream = InputStream(fileAtPath: filePath)!
+            var chunkEnd = offset + chunkSize
+            
+            // if last chunk
+            if(chunkEnd > fileSize){
+                chunkEnd = fileSize
             }
-            // if video is created
-            else{
-                // if no error with the video uri
-                if(uri != "") {
-                    // get data lenght to upload a big or a small file
-                    let data = try? Data(contentsOf: url)
-                    let dataLen = data!.count
-                    // if data lenght < 30mb upload small file else upload big file
-                    if(dataLen < ((1024 * 1000) * 30)){
-                        print("choose a largest video")
-                    }else{
-                        self.uploadLargeStream(videoUri: uri, fileName: fileName, filePath: filePath, url: url){ (crea, resp) in
-                            // if video is uploaded
-                            if(crea){
-                                videoCreated = crea
-                                completion(videoCreated, resp)
-                            }
-                            // if video upload return error
-                            else{
-                                completion(videoCreated, resp)
-                            }
-                        }
-                    }
-                }
-                // if error with the uri
-                else{
-                    completion(videoCreated, resp)
+            
+            
+            let multipartUploadInputStream = MultipartUploadInputStream(inputStream: fileStream, fileName: fileName, partName: "file", contentType: "video/mp4", chunkStart: Int64(offset), chunkEnd: Int64(chunkEnd), semaphore: semaphore)
+            
+            
+            print("Content-Range : bytes \(offset)-\(chunkEnd-1)/\(Int64(fileSize))")
+            urlRequest.httpMethod = "POST"
+            urlRequest.setValue("multipart/form-data; boundary=\(multipartUploadInputStream.getBoundary())", forHTTPHeaderField: "Content-Type")
+            urlRequest.setValue("bytes \(offset)-\(chunkEnd-1)/\(Int64(fileSize))", forHTTPHeaderField: "Content-Range")
+            urlRequest.setValue(String(multipartUploadInputStream.getSize()), forHTTPHeaderField: "Content-Length")
+            urlRequest.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
+            urlRequest.httpBodyStream = multipartUploadInputStream
+            
+            let session = URLSession.shared
+            
+            TaskExecutor().execute(session: session, request: urlRequest){(data, response) in
+                if(data != nil){
+                    print("chunk uploaded")
+                    readBytes = chunkEnd
+                    semaphore.signal()
+                }else{
+                    completion(false, response)
                 }
             }
+            semaphore.wait()
+            fileStream.close()
+        }
+        print("readBytes : \(readBytes)")
+        if(readBytes == fileSize){
+            completion(true, nil)
         }
     }
     
-    //MARK: Upload Large video by stream (WIP)
-    public func uploadLargeStream(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Bool, Response?) -> ()){
-        let chunkSize: Int = ((1024 * 1024) * 30) // MB
-        let apiPath = self.environnement + videoUri
-        var request = URLRequest(url: URL(string: apiPath)!)
-        let boundary = generateBoundaryString()
-        let data = try? Data(contentsOf: url)
-        let fileLength = data!.count
-        let stream = InputStream.init(url: url)
-        var bytesRead = 0
-        
-        
-        
-        print("fileLength \(fileLength)")
-        print("chunkSize \(chunkSize)")
-        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: chunkSize)
-        for offset in stride(from: 0, through: fileLength, by: chunkSize){
-            let input = InputStream.init(url: url)
-            var currentPosition = offset + chunkSize - 1
-            var read: Int
-            var output: OutputStream? = OutputStream()
-            
-            
-            if(currentPosition > fileLength){
-                currentPosition = fileLength - 1
-            }else{
-                read = (input?.read(buffer, maxLength: chunkSize))!
-                output!.write(buffer, maxLength: read)
-                
-                var inStream: InputStream? = nil
-                var outStream: OutputStream? = nil
-                Stream.getBoundStreams(withBufferSize: chunkSize, inputStream: &inStream, outputStream: &outStream)
-                
-                
-            }
-            
-            //output.write(buffer, maxLength: read)
-            
-            request.httpMethod = "POST"
-            request.setValue("bytes \(offset)-\(currentPosition)/\(fileLength)", forHTTPHeaderField: "Content-Range")
-            request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-            request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
-//            request.httpBodyStream()
-            
-//            let config = URLSessionConfiguration.default
-//            request.httpBody = try? createBodyWithData(data: data, filePath: filePath, fileName: fileName, boundary: boundary)
-            let session = URLSession.shared
-            let task = session.uploadTask(withStreamedRequest: request as URLRequest)
-            task.resume()
-            print("offset : \(offset)")
-            print("current Pos : \(currentPosition)")
-        }
-        
-        completion(true, nil)
-        
-    }
     
     private func createBodyWithUrl(url: URL, filePath: String, fileName: String, boundary: String) throws -> Data{
         var body = Data()
@@ -350,36 +320,20 @@ public class VideoApi{
         
         var resp: Response?
         let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
+        TaskExecutor().execute(session: session, request: request){(data, response) in
             self.sumChunk = self.sumChunk + ( number + 1)
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
-                if(json != nil){
-                    if(json == nil){
-                        resp = nil
-                        completion(false, resp)
-                    }
-                }
-            case 400:
-                let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
+            if(data != nil){
+                resp = nil
                 completion(false, resp)
-            default:
-                let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
+            }else{
+                resp = response
                 completion(false, resp)
             }
-            semaphore.signal()
-            
-            //check if all chunk have been uploaded before completion
             let total = ((maxChunk * (maxChunk + 1 )) / 2)
             if(self.sumChunk == total){
                 completion(true, resp)
             }
-        })
-        task.resume()
+        }
     }
     
     
