@@ -13,25 +13,30 @@ public class TaskExecutor{
 
     public func execute(session: URLSession, request: URLRequest, group: DispatchGroup?, completion: @escaping (Data?, Response?) -> ()){
         var resp: Response? = nil
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
+        var task: URLSessionTask?
+        task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
             let httpResponse = response as? HTTPURLResponse
             switch httpResponse!.statusCode{
             case 200 ... 299:
+                task?.cancel()
                 completion(data, resp)
                 
             case 400, 401, 404:
+                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                 if(json != nil){
                     let data: Data? = nil
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
                     resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
+                    task?.cancel()
                     completion(data,resp)
                 }
             default:
+                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                 if(json != nil){
                     let data: Data?  = nil
                     let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
                     resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
+                    task?.cancel()
                     completion(data,resp)
                 }
             }
@@ -39,7 +44,7 @@ public class TaskExecutor{
                 group!.leave()
             }
         })
-        task.resume()
+        task!.resume()
     }
     
     public func execute(session: URLSession, request: URLRequest, completion: @escaping (Data?, Response?) -> ()){

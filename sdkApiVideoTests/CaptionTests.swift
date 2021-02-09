@@ -11,37 +11,19 @@ import XCTest
 
 class CaptionTests: XCTestCase {
     let authClient = Client()
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
 
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
     //MARK: Upload caption
     func testUploadCaption_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi5JFtSZLlbmWxRWA8oPADMR"
+        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var isAuthentified = false
         var captionApi: CaptionApi!
         var isUploaded = false
         var response: Response?
-        let filename = "rabit_en.vtt"
+        let filename = "my_captions.vtt"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "rabit_en", ofType: "vtt")!
-        let url = bundle.url(forResource: "rabit_en", withExtension: "vtt")!
+        let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
+        let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
         
         self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
@@ -75,7 +57,7 @@ class CaptionTests: XCTestCase {
     //MARK: get caption by id
     func testgetCaptionById_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi4VElLT2UE0UdrxQzTl2R2x"
+        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var isAuthentified = false
         var captionApi: CaptionApi!
         var caption: Caption?
@@ -91,7 +73,7 @@ class CaptionTests: XCTestCase {
         }
         
         if(isAuthentified){
-            captionApi.getCaption(videoId: videoId, language: "fr"){ (cap, resp) in
+            captionApi.getCaption(videoId: videoId, language: "en"){ (cap, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
                     caption = cap
@@ -111,7 +93,7 @@ class CaptionTests: XCTestCase {
     //MARK: get all captions
     func testGetAllCaption(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi5JFtSZLlbmWxRWA8oPADMR"
+        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var myCaptions: [Caption]?
         var response: Response?
         var isAuthentified = false
@@ -151,7 +133,7 @@ class CaptionTests: XCTestCase {
     func testUpdateDefaultCaption(){
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
-        let videoId = "vi5JFtSZLlbmWxRWA8oPADMR"
+        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var isUpdated = false
         var isAuthentified = false
         var captionApi: CaptionApi!
@@ -165,7 +147,7 @@ class CaptionTests: XCTestCase {
             }
         }
         if(isAuthentified){
-            captionApi.updateDefaultValue(videoId: videoId, language: "fr", isDefault: false){ (updated, resp) in
+            captionApi.updateDefaultValue(videoId: videoId, language: "en", isDefault: false){ (updated, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
                     response = resp
@@ -190,7 +172,7 @@ class CaptionTests: XCTestCase {
         var response: Response?
         var isDeleted = false
         var isAuthentified = false
-        let videoId = "vi5JFtSZLlbmWxRWA8oPADMR"
+        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var captionApi: CaptionApi!
         
         self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in

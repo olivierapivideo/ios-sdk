@@ -26,26 +26,23 @@ public class Client{
 
     public init(){}
     
-    public func createProduction(key: String, completion: @escaping (Bool, Response?) ->()){
-        self.environnement = ApiPaths.apiVideoProduction.rawValue
+    private func create(key: String, completion: @escaping (Bool, Response?) ->()){
         let apiPath = ApiPaths.apiVideoProduction.rawValue + ApiPaths.createProduction.rawValue
         let body = ["apiKey": key] as Dictionary<String, String>
-        var request = URLRequest(url: URL(string: apiPath)!)
-        request.httpMethod = "POST"
+        var request = RequestBuilder().postClientUrlRequestBuilder(apiPath: apiPath)
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
         let group = DispatchGroup()
         group.enter()
         
         var resp: Response?
         var created = false
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
+        let session = RequestBuilder().urlSessionBuilder()
+        TaskExecutor().execute(session: session, request: request, group: group){(data,response) in
+            if(data != nil){
+                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
+
                 self.accessToken = json?["access_token"] as! String
                 self.tokenType = json?["token_type"] as! String
                 self.videoApi = VideoApi(tokenType: self.tokenType, key: self.accessToken, environnement: self.environnement)
@@ -58,68 +55,26 @@ public class Client{
                 created = true
                 resp = nil
                 completion(created, resp)
-            case 400:
-                let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: (json!["type"] as! String), statusCode: stringStatus, message: (json!["title"] as! String))
-                completion(created, resp)
-            default:
-                let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: (json!["type"] as! String), statusCode: stringStatus, message: (json!["title"] as! String))
+            }else{
+                resp = response
                 completion(created, resp)
             }
-            
-            group.leave()
-        })
-        task.resume()
+        }
         group.wait()
+    }
+    
+    public func createProduction(key: String, completion: @escaping (Bool, Response?) ->()){
+        self.environnement = ApiPaths.apiVideoProduction.rawValue
+        create(key: key){(data, response) in
+            completion(data,response)
+        }
     }
     
     public func createSandbox(key: String, completion: @escaping (Bool, Response?) ->()){
         self.environnement = ApiPaths.apiVideoSandbox.rawValue
-        let apiPath = ApiPaths.apiVideoSandbox.rawValue + ApiPaths.createProduction.rawValue
-        let body = ["apiKey": key] as Dictionary<String, String>
-        var request = URLRequest(url: URL(string: apiPath)!)
-        request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        let group = DispatchGroup()
-        group.enter()
-        
-        var resp: Response?
-        var created = false
-        
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
-                self.accessToken = json?["access_token"] as! String
-                self.tokenType = json?["token_type"] as! String
-                self.videoApi = VideoApi(tokenType: self.tokenType, key: self.accessToken, environnement: self.environnement)
-                self.playerApi = PlayerApi(tokenType: self.tokenType, key: self.accessToken, environnement: self.environnement)
-                self.liveStreamApi = LiveStreamApi(tokenType: self.tokenType, key: self.accessToken, environnement: self.environnement)
-                self.analyticsLiveApi = AnalyticsLiveApi(tokenType: self.tokenType, key: self.accessToken, environnement: self.environnement)
-                self.analyticsVideoApi = AnalyticsVideoApi(tokenType: self.tokenType, key: self.accessToken, environnement: self.environnement)
-                self.captionApi = CaptionApi(tokenType: self.tokenType, key: self.accessToken, environnement: self.environnement)
-                self.chapterApi = ChapterApi(tokenType: self.tokenType, key: self.accessToken, environnement: self.environnement)
-                created = true
-                resp = nil
-                completion(created, resp)
-            case 400:
-                let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                completion(created, resp)
-            default:
-                let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                completion(created, resp)
-            }
-            
-            group.leave()
-        })
-        task.resume()
-        group.wait()
+        create(key: key){(data, response) in
+            completion(data,response)
+        }
     }
     
     public func getAccessToken() -> String {

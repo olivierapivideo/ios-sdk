@@ -36,39 +36,24 @@ public class ChapterApi{
     public func uploadChapter(videoId: String, url: URL, filePath: String, fileName: String, language: String, completion: @escaping(Bool, Response?) -> ()){
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.chapters.rawValue + "/" + language
         let boundary = generateBoundaryString()
-        var request = URLRequest(url: URL(string: apiPath)!)
+        var request = RequestBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
-        request.httpMethod = "POST"
         request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
         request.httpBody = try? createBodyWithUrl(url: url, filePath: filePath, fileName: fileName, boundary: boundary)
         
         var isUploaded = false
         var resp: Response?
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
+        let session = RequestBuilder().urlSessionBuilder()
+        TaskExecutor().execute(session: session, request: request){ (data, response) in
+            if(data != nil){
                 isUploaded = true
                 completion(isUploaded, resp)
-            case 400, 404:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(isUploaded, resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(isUploaded,resp)
-                }
+            }else{
+                resp = response
+                completion(isUploaded, resp)
             }
-        })
-        task.resume()
+        }
     }
     
     /**
@@ -80,39 +65,21 @@ public class ChapterApi{
         var chapter: Chapter?
         var resp: Response?
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.chapters.rawValue + "/\(language)"
-        var request = URLRequest(url: URL(string: apiPath)!)
-        
-        request.httpMethod = "Get"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
+        let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200:
+        let session = RequestBuilder().urlSessionBuilder()
+        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+            if(data != nil){
                 chapter = try? self.decoder.decode(Chapter.self, from: data!)
                 completion(chapter, resp)
-            case 400, 401, 404:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(chapter,resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(chapter,resp)
-                }
+            }else{
+                resp = response
+                completion(chapter, resp)
             }
-            group.leave()
-        })
-        task.resume()
+        }
         group.wait()
     }
     
@@ -131,42 +98,24 @@ public class ChapterApi{
         }
         for number in (0...nbItems){
             let apiPath = "\(path)?currentPage=\(number + 1)&pageSize=25"
-            var request = URLRequest(url: URL(string: apiPath)!)
-            
-            request.httpMethod = "Get"
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
+            let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
             
             let group = DispatchGroup()
             group.enter()
             
-            let session = URLSession.shared
-            let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-                let httpResponse = response as? HTTPURLResponse
-                switch httpResponse?.statusCode{
-                case 200:
-                    for data in json!["data"] as! [AnyObject]{
-                        let jsonData = try? JSONSerialization.data(withJSONObject:data)
+            let session = RequestBuilder().urlSessionBuilder()
+            TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+                if(data != nil){
+                    let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
+                    for d in json!["data"] as! [AnyObject]{
+                        let jsonData = try? JSONSerialization.data(withJSONObject:d)
                         let chapter = try? self.decoder.decode(Chapter.self, from: jsonData!)
                         chapters.append(chapter!)
                     }
-                case 400, 401:
-                    if(json != nil){
-                        let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                        completion(chapters,resp)
-                    }
-                default:
-                    if(json != nil){
-                        let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                        completion(chapters,resp)
-                    }
+                }else{
+                    resp = response
                 }
-                group.leave()
-            })
-            task.resume()
+            }
             group.wait()
         }
         completion(chapters,resp)
@@ -179,43 +128,23 @@ public class ChapterApi{
      */
     public func deleteChapter(videoId: String, language: String, completion: @escaping(Bool, Response?)->()){
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.chapters.rawValue + "/\(language)"
-        var request = URLRequest(url: URL(string: apiPath)!)
+        let request = RequestBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         var deleted = false
         var resp : Response?
-        
-        request.httpMethod = "DELETE"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
-        
+       
         let group = DispatchGroup()
         group.enter()
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201, 204:
+        let session = RequestBuilder().urlSessionBuilder()
+        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+            if(data != nil){
                 deleted = true
                 completion(deleted, resp)
-            case 400, 404:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(deleted,resp)
-                }else{
-                    completion(deleted,resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(deleted,resp)
-                }
+            }else{
+                resp = response
+                completion(deleted, resp)
             }
-            group.leave()
-        })
-        task.resume()
+        }
         group.wait()
     }
     

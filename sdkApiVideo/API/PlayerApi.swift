@@ -51,33 +51,23 @@ public class PlayerApi{
             ] as Dictionary<String, AnyObject>
         var created = false
         var resp: Response?
-        var request = URLRequest(url: URL(string: apiPath)!)
+        var request = RequestBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
-        request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
-                if(json != nil){
-                    created = true
-                    resp = nil
-                    completion(created, resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                }
+        let session = RequestBuilder().urlSessionBuilder()
+        
+        TaskExecutor().execute(session: session, request: request){(data, response) in
+            if(data != nil){
+                created = true
+                resp = nil
+                completion(created, resp)
+            }else{
+                resp = response
                 completion(created, resp)
             }
-        })
-        task.resume()
+        }
     }
     
     //MARK: Get All Players
@@ -92,43 +82,25 @@ public class PlayerApi{
         }
         for number in (0...nbItems){
             let apiPath = "\(path)?currentPage=\(number + 1)&pageSize=25"
-            var request = URLRequest(url: URL(string: apiPath)!)
-            request.httpMethod = "GET"
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
+            let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
             
             let group = DispatchGroup()
             group.enter()
             
-            let session = URLSession.shared
-            let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-                let httpResponse = response as? HTTPURLResponse
-                switch httpResponse?.statusCode{
-                case 200:
-                    if(json != nil){
-                        for data in json!["data"] as! [AnyObject]{
-                            let jsonData = try? JSONSerialization.data(withJSONObject:data)
-                            let player = try? self.decoder.decode(Player.self, from: jsonData!)
-                            players.append(player!)
-                        }
+            let session = RequestBuilder().urlSessionBuilder()
+            TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+                if(data != nil){
+                    let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
+                    for d in json!["data"] as! [AnyObject]{
+                        let jsonData = try? JSONSerialization.data(withJSONObject:d)
+                        let player = try? self.decoder.decode(Player.self, from: jsonData!)
+                        players.append(player!)
                     }
-                case 400:
-                    if(json != nil){
-                        let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                        completion(players,resp)
-                    }
-                default:
-                    if(json != nil){
-                        let stringStatus = String(json!["status"] as! Int)
-                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                        completion(players,resp)
-                    }
+                }else{
+                    resp = response
+                    completion(players, resp)
                 }
-                group.leave()
-            })
-            task.resume()
+            }
             group.wait()
         }
         completion(players,resp)
@@ -139,48 +111,27 @@ public class PlayerApi{
         var player: Player?
         var resp: Response?
         let apiPath = self.environnement + ApiPaths.players.rawValue + "/" + playerId
-        var request = URLRequest(url: URL(string: apiPath)!)
-        
-        request.httpMethod = "Get"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
-        
+        let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+                
         let group = DispatchGroup()
         group.enter()
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
-                if(json != nil){
-                    player = try! self.decoder.decode(Player.self, from: data!)
-                    completion(player,resp)
-                }
-            case 400:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(player,resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(player,resp)
-                }
+        let session = RequestBuilder().urlSessionBuilder()
+        TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+            if(data != nil){
+                player = try! self.decoder.decode(Player.self, from: data!)
+                completion(player,resp)
+            }else{
+                resp = response
+                completion(player, resp)
             }
-            
-            group.leave()
-        })
-        task.resume()
+        }
         group.wait()
     }
     
     //MARK: Update Player
     public func updatePlayer(player: Player, completion: @escaping (Bool, Response?) ->()){
-        let apiPath = self.environnement + ApiPaths.players.rawValue + "/\(String(describing: player.playerId))"
+        let apiPath = self.environnement + ApiPaths.players.rawValue + "/\(String(describing: player.playerId!))"
         let body = [
             "shapeMargin": player.shapeMargin!,
             "shapeRadius": player.shapeRadius!,
@@ -205,36 +156,23 @@ public class PlayerApi{
             ] as Dictionary<String, AnyObject>
         var updated = false
         var resp: Response?
-        var request = URLRequest(url: URL(string: apiPath)!)
+        var request = RequestBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
-        request.httpMethod = "PATCH"
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
-                if(json != nil){
-                    updated = true
-                    completion(updated, resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                }
+        let session = RequestBuilder().urlSessionBuilder()
+        TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+            if(data != nil){
+                updated = true
+                completion(updated, resp)
+            }else{
+                resp = response
                 completion(updated, resp)
             }
-            group.leave()
-        })
-        task.resume()
+        }
         group.wait()
     }
     
@@ -244,45 +182,20 @@ public class PlayerApi{
         let boundary = generateBoundaryString()
         var uploaded = false
         var resp : Response?
-        var request = URLRequest(url: URL(string: apiPath)!)
-        
-        request.httpMethod = "POST"
+        var request = RequestBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
         request.httpBody = try? createBodyWithData(data: imageData, filePath: filePath, fileName: fileName, boundary: boundary)
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201:
-                if(json != nil){
-                    uploaded = true
-                    completion(uploaded, resp)
-                }else{
-                    completion(uploaded, resp)
-                }
-            case 400, 404:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(uploaded,resp)
-                }else{
-                    completion(uploaded,resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    let url = json!["type"] as! String
-                    let message = json!["title"] as! String
-                    resp = Response(url: url, statusCode: stringStatus, message: message)
-                    completion(uploaded,resp)
-                }
+        let session = RequestBuilder().urlSessionBuilder()
+        TaskExecutor().execute(session: session, request: request){ (data, response) in
+            if(data != nil){
+                uploaded = true
+                completion(uploaded, resp)
+            }else{
+                resp = response
+                completion(uploaded, resp)
             }
-        })
-        task.resume()
-        
+        }
     }
     
     //MARK: Delete Player
@@ -291,43 +204,21 @@ public class PlayerApi{
         var deleted = false
         var resp : Response?
         
-        var request = URLRequest(url: URL(string: apiPath)!)
-        
-        request.httpMethod = "DELETE"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
-        
+        let request = RequestBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+                
         let group = DispatchGroup()
         group.enter()
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200, 201, 204:
+        let session = RequestBuilder().urlSessionBuilder()
+        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+            if(data != nil){
                 deleted = true
-                completion(deleted, resp)
-            case 400, 404:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(deleted,resp)
-                }else{
-                    completion(deleted,resp)
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    completion(deleted,resp)
-                }
+                completion(deleted,resp)
+            }else{
+                resp = response
+                completion(deleted,resp)
             }
-            group.leave()
-        })
-        task.resume()
+        }
         group.wait()
     }
     

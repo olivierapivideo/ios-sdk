@@ -9,12 +9,12 @@
 import Foundation
 
 public struct AnalyticReferrer: Codable{
-    public var url: String
     public var medium: String
     public var source: String
+    public var url: String?
     public var search_term: String
     
-    init(url: String, medium: String, source: String, search_term: String) {
+    init(medium: String, source: String, url: String?,  search_term: String) {
         self.url = url
         self.medium = medium
         self.source = source

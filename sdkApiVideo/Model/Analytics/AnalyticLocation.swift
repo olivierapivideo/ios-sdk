@@ -10,9 +10,9 @@ import Foundation
 
 public struct AnalyticLocation: Codable{
     public var country: String
-    public var city: String
+    public var city: String?
     
-    init(country: String, city: String) {
+    init(country: String, city: String?) {
         self.country = country
         self.city = city
     }

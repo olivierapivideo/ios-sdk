@@ -11,25 +11,6 @@ import XCTest
 
 class AnalyticsLiveStreamTests: XCTestCase {
     let authClient = Client()
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
 
     
     // wrong id
@@ -75,7 +56,7 @@ class AnalyticsLiveStreamTests: XCTestCase {
     
     func testSearchLiveAnalyticsById(){
         let expectation = self.expectation(description: "request should succeed")
-        let liveStreamId = "lifoJ7EV4LeIYAXhT1LDz0x"
+        let liveStreamId = "li5wq1x0g0v3AQws2Y5OyqJq"
         var isAuthentified = false
         var analyticsLiveApi: AnalyticsLiveApi!
         var analyticsData: [AnalyticData]?
@@ -112,7 +93,7 @@ class AnalyticsLiveStreamTests: XCTestCase {
     
     func testSearchLiveAnalyticsById_ForADay(){
         let expectation = self.expectation(description: "request should succeed")
-        let liveStreamId = "lifoJ7EV4LeIYAXhT1LDz0x"
+        let liveStreamId = "li5wq1x0g0v3AQws2Y5OyqJq"
         var analyticsLiveApi: AnalyticsLiveApi!
         let period = "2020-01-13"
         var isAuthentified = false
@@ -151,7 +132,7 @@ class AnalyticsLiveStreamTests: XCTestCase {
     
     func testSearchLiveAnalyticsById_ForAWeek(){
         let expectation = self.expectation(description: "request should succeed")
-        let liveStreamId = "lifoJ7EV4LeIYAXhT1LDz0x"
+        let liveStreamId = "li5wq1x0g0v3AQws2Y5OyqJq"
         var analyticsLiveApi: AnalyticsLiveApi!
         let period = "2020-W01"
         var isAuthentified = false

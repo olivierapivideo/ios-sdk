@@ -21,10 +21,10 @@ class VideoTests: XCTestCase {
         var videoApi: VideoApi!
         let filename = "tennis.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "tennis court", ofType: "mp4")!
-        let url = bundle.url(forResource: "tennis court", withExtension: "mp4")
+        let filepath = bundle.path(forResource: "tennis", ofType: "mp4")!
+        let url = bundle.url(forResource: "tennis", withExtension: "mp4")
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -57,7 +57,7 @@ class VideoTests: XCTestCase {
         let expectation = self.expectation(description: "request should succeed")
         var isAuthentified = false
         var isUploaded = false
-        let videoUri = "/videos/vi1kY2TTlIvImPNWq9ZEPb27/source"
+        let videoUri = "/videos/vi74hVxjnfAyQ9RQ9Ip27c2w/source"
         var response: Response?
         var videoApi: VideoApi!
         let filename = "tennis.mp4"
@@ -65,7 +65,7 @@ class VideoTests: XCTestCase {
         let filepath = bundle.path(forResource: "tennis court", ofType: "mp4")!
         let url = bundle.url(forResource: "tennis court", withExtension: "mp4")
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -105,7 +105,7 @@ class VideoTests: XCTestCase {
         var response: Response?
         var videoApi: VideoApi!
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -187,13 +187,13 @@ class VideoTests: XCTestCase {
         var isUploaded = false
         var response: Response?
         var videoApi: VideoApi!
-        let videoUri = "/videos/vi3doobviYa8f7r2HoptU2aG/source"
-        let filename = "Watermelon.mp4"
+        let videoUri = "/videos/vi4iXjwxFJiSlJG1wYNarnPw/source"
+        let filename = "Test lapin.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "Watermelon.mp4", ofType: "mp4") ?? "/Users/romainpetit/Documents/GitHub/ios-sdk/sdkApiVideoTests/asset/Watermelon.mp4"
+        let filepath = bundle.path(forResource: "Test lapin.mp4", ofType: "mp4") ?? "/Users/romainpetit/Documents/GitHub/ios-sdk/sdkApiVideoTests/asset/Test lapin.mp4"
         let url = URL(fileURLWithPath: filepath)
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -240,7 +240,7 @@ class VideoTests: XCTestCase {
         let filepath = bundle.path(forResource: "video-test", ofType: "mp4")!
         let url = bundle.url(forResource: "video-test", withExtension: "mp4")
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -287,7 +287,7 @@ class VideoTests: XCTestCase {
         let filepath = bundle.path(forResource: "2019_03_03_15_34_31", ofType: "mp4")!
         let url = bundle.url(forResource: "2019_03_03_15_34_31", withExtension: "mp4")!
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -332,7 +332,7 @@ class VideoTests: XCTestCase {
         let filepath = bundle.path(forResource: "2019_03_03_15_34_31", ofType: "mp4")!
         let url = bundle.url(forResource: "2019_03_03_15_34_31", withExtension: "mp4")!
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -420,7 +420,7 @@ class VideoTests: XCTestCase {
         var response: Response?
         var videoApi: VideoApi!
 
-        self.authClient.createProduction(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, resp) in
+        self.authClient.createProduction(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -455,13 +455,13 @@ class VideoTests: XCTestCase {
     //MARK: test Get video by id Success
     func testGetVideoById_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi4Iw8Xnuy2ATAsw2GVH7s9A"
+        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var isAuthentified = false
         var videoApi: VideoApi!
         var video: Video?
         var response: Response?
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -499,7 +499,7 @@ class VideoTests: XCTestCase {
         var video: Video?
         var response: Response?
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -534,7 +534,7 @@ class VideoTests: XCTestCase {
         var isAuthentified = false
         var videoApi: VideoApi!
 
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -572,7 +572,7 @@ class VideoTests: XCTestCase {
         var isAuthentified = false
         var videoApi: VideoApi!
 
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -605,13 +605,13 @@ class VideoTests: XCTestCase {
     //MARK: test Delete Video Success
     func testDeleteVideo_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi7TcP4YXaOJTiRYuE1OGTb2"
+        let videoId = "vi3EYj5RzBRap8ojItrKbjLl"
         var isAuthentified = false
         var videoApi: VideoApi!
         var isDeleted = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -640,7 +640,7 @@ class VideoTests: XCTestCase {
     //MARK: test Update video info
     func testUpdateVideo_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi52DHXFPKhqlidqBkeMdk6a"
+        let videoId = "vi4iXjwxFJiSlJG1wYNarnPw"
         var isAuthentified = false
         var videoApi: VideoApi!
         var isUpdated = false
@@ -648,7 +648,7 @@ class VideoTests: XCTestCase {
         
         let video = Video(videoId: videoId, title: "video update", description: "video desc", isPublic: true, publishedAt: nil, tags: nil, metaData: nil, assets: nil, sourceVideo: nil, playerId: nil, panoramic: false)
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -684,7 +684,7 @@ class VideoTests: XCTestCase {
         var isDeleted = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -714,14 +714,14 @@ class VideoTests: XCTestCase {
     //MARK: test Get Video Status Success
     func testGetStatus_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi5DjJ6QRAX0nYOZKxrlT6rS"
+        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var isAuthentified = false
         var videoApi: VideoApi!
 
         var status: Status?
         var response: Response?
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -757,7 +757,7 @@ class VideoTests: XCTestCase {
         var status: Status?
         var response: Response?
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -786,14 +786,14 @@ class VideoTests: XCTestCase {
     //MARK: test Pick Thumbnail Success
     func testPickThumbnail_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi5DjJ6QRAX0nYOZKxrlT6rS"
+        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var isAuthentified = false
         var videoApi: VideoApi!
 
         var isChanged = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -803,7 +803,7 @@ class VideoTests: XCTestCase {
         }
         
         if(isAuthentified){
-            videoApi.pickThumbnail(videoId: videoId, timecode: "00:01:36.00"){(changed, resp) in
+            videoApi.pickThumbnail(videoId: videoId, timecode: "00:00:26.00"){(changed, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
                     response = resp
@@ -828,7 +828,7 @@ class VideoTests: XCTestCase {
         var isChanged = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -857,7 +857,7 @@ class VideoTests: XCTestCase {
     //MARK: test Upload Image as Thumbnail Success
     func testUplaodImageThumbnail_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi2k0uesF8c6a730BnRDDRVG"
+        let videoId = "vi4iXjwxFJiSlJG1wYNarnPw"
         var isAuthentified = false
         var videoApi: VideoApi!
         let filename = "foret.jpg"
@@ -869,7 +869,7 @@ class VideoTests: XCTestCase {
         var isUploaded = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTVkD"){ (authentified, response) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
