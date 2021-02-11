@@ -2,15 +2,13 @@
 //  TaskExecutor.swift
 //  sdkApiVideo
 //
-//  Created by Romain Petit on 24/12/2020.
-//  Copyright © 2020 Romain. All rights reserved.
+//  Created by Romain Petit on 11/02/2021.
+//  Copyright © 2021 Romain. All rights reserved.
 //
 
 import Foundation
-
 public class TaskExecutor{
     private let decoder = JSONDecoder()
-
     public func execute(session: URLSession, request: URLRequest, group: DispatchGroup?, completion: @escaping (Data?, Response?) -> ()){
         var resp: Response? = nil
         var task: URLSessionTask?
@@ -20,7 +18,6 @@ public class TaskExecutor{
             case 200 ... 299:
                 task?.cancel()
                 completion(data, resp)
-                
             case 400, 401, 404:
                 let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                 if(json != nil){
@@ -46,7 +43,6 @@ public class TaskExecutor{
         })
         task!.resume()
     }
-    
     public func execute(session: URLSession, request: URLRequest, completion: @escaping (Data?, Response?) -> ()){
         execute(session: session, request: request, group: nil){(data, response) in
             completion(data, response)
