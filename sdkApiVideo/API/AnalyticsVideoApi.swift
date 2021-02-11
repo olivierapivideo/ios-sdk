@@ -45,66 +45,46 @@ public class AnalyticsVideoApi{
                 apiPath = self.environnement + ApiPaths.analyticsVideo.rawValue + idVideo + "?currentPage=\(number + 1)&pageSize=25"
             }
             
-            var request = URLRequest(url: URL(string: apiPath)!)
-            request.httpMethod = "Get"
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
+            let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
             
             let group = DispatchGroup()
             group.enter()
             
-            let session = URLSession.shared
-            let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-                let httpResponse = response as? HTTPURLResponse
-                switch httpResponse?.statusCode{
-                case 200:
-                    for data in json!["data"] as! [AnyObject]{
+            let session = RequestBuilder().urlSessionBuilder()
+            TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+                if(data != nil){
+                    let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
+                    for d in json!["data"] as! [AnyObject]{
                         
-                        let jsonDataSession = try? JSONSerialization.data(withJSONObject:data["session"]!!)
+                        let jsonDataSession = try? JSONSerialization.data(withJSONObject:d["session"]!!)
                         let session = try? self.decoder.decode(AnalyticSession.self, from: jsonDataSession!)
                         
-                        let jsonDataLocation = try? JSONSerialization.data(withJSONObject:data["location"]!!)
+                        let jsonDataLocation = try? JSONSerialization.data(withJSONObject:d["location"]!!)
                         let location = try? self.decoder.decode(AnalyticLocation.self, from: jsonDataLocation!)
                         
-                        let jsonDataReferrer = try? JSONSerialization.data(withJSONObject:data["referrer"]!!)
+                        let jsonDataReferrer = try? JSONSerialization.data(withJSONObject:d["referrer"]!!)
                         let referrer = try? self.decoder.decode(AnalyticReferrer.self, from: jsonDataReferrer!)
                         
-                        let jsonDataDevice = try? JSONSerialization.data(withJSONObject:data["device"]!!)
+                        let jsonDataDevice = try? JSONSerialization.data(withJSONObject:d["device"]!!)
                         let device = try? self.decoder.decode(AnalyticDevice.self, from: jsonDataDevice!)
                         
-                        let jsonDataOs = try? JSONSerialization.data(withJSONObject:data["os"]!!)
+                        let jsonDataOs = try? JSONSerialization.data(withJSONObject:d["os"]!!)
                         let os = try? self.decoder.decode(AnalyticOs.self, from: jsonDataOs!)
                         
-                        let jsonDataClient = try? JSONSerialization.data(withJSONObject:data["client"]!!)
+                        let jsonDataClient = try? JSONSerialization.data(withJSONObject:d["client"]!!)
                         let client = try? self.decoder.decode(AnalyticClient.self, from: jsonDataClient!)
                         
                         let analyticData = AnalyticData(session: session!, location: location!, referrer: referrer!, device: device!, os: os!, client: client!)
                         
                         analyticsData.append(analyticData)
                     }
-                case 400, 401, 404:
-                    if(json != nil){
-                        let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                        completion(analyticsData, resp)
-                        break
-                    }
-                default:
-                    if(json != nil){
-                        let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                        completion(analyticsData, resp)
-                        break
-                    }
+                }else{
+                    resp = response
+                    completion(analyticsData, resp)
                 }
-                
-                group.leave()
-            })
-            task.resume()
+            }
             group.wait()
         }
-        
         completion(analyticsData, resp)
     }
 }

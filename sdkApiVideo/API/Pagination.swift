@@ -22,42 +22,23 @@ public class Pagination{
     public func getNbOfItems(apiPath: String)-> Int{
         var resp: Response?
         var nbOfItems = 0
-        var request = URLRequest(url: URL(string: apiPath)!)
-        
-        request.httpMethod = "Get"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
+        let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-            let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-            let httpResponse = response as? HTTPURLResponse
-            switch httpResponse?.statusCode{
-            case 200:
+        let session = RequestBuilder().urlSessionBuilder()
+        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+            if(data != nil){
+                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                 let pagination = json!["pagination"] as! Dictionary<String, AnyObject>
                 let itemsTotal = pagination["pagesTotal"]
                 nbOfItems = itemsTotal as! Int
-            case 400:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    print("resp : \(String(describing: resp))" )
-                }
-            default:
-                if(json != nil){
-                    let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                    resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                    print("resp : \(String(describing: resp))" )
-                }
+            }else{
+                resp = response
             }
-            group.leave()
-        })
-        task.resume()
+        }
         group.wait()
-        
         return nbOfItems
     }
 }

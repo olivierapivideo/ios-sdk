@@ -46,20 +46,15 @@ public class AnalyticsLiveApi{
                 apiPath = self.environnement + ApiPaths.analyticsLiveStream.rawValue + idLiveStream + "?currentPage=\(number + 1)&pageSize=25"
             }
             
-            var request = URLRequest(url: URL(string: apiPath)!)
-            request.httpMethod = "Get"
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("\(self.tokenType!) \(self.key!)", forHTTPHeaderField: "Authorization")
+            let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
             
             let group = DispatchGroup()
             group.enter()
             
-            let session = URLSession.shared
-            let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-                let httpResponse = response as? HTTPURLResponse
-                switch httpResponse?.statusCode{
-                case 200:
+            let session = RequestBuilder().urlSessionBuilder()
+            TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+                if(data != nil){
+                    let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                     for data in json!["data"] as! [AnyObject]{
                         
                         let jsonDataSession = try? JSONSerialization.data(withJSONObject:data["session"]!!)
@@ -84,26 +79,10 @@ public class AnalyticsLiveApi{
                         
                         analyticsData.append(analyticData)
                     }
-                    
-                case 400, 401, 404:
-                    if(json != nil){
-                        let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                        completion(analyticsData, resp)
-                        break
-                    }
-                default:
-                    if(json != nil){
-                        let stringStatus = String(json!["status"] as? Int ?? httpResponse!.statusCode)
-                        resp = Response(url: json!["type"] as? String, statusCode: stringStatus, message: json!["title"] as? String)
-                        completion(analyticsData, resp)
-                        break
-                    }
+                }else{
+                    resp = response
                 }
-                
-                group.leave()
-            })
-            task.resume()
+            }
             group.wait()
         }
         completion(analyticsData, resp)
