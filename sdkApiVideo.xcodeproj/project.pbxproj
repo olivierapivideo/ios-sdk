@@ -246,6 +246,8 @@
 		7A9AAEF52354BCFE001E4EDE /* API */ = {
 			isa = PBXGroup;
 			children = (
+				C7B589332594D8D500EF60B3 /* TaskExecutor.swift */,
+				C79123AC25CC60F200F96703 /* RequestBuilder.swift */,
 				7A38F22A23433CDC00C94733 /* Client.swift */,
 				7A112A5B2344A27200D4EE4B /* ApiPaths.swift */,
 				7A9AAEF62354BD26001E4EDE /* VideoApi.swift */,
@@ -288,8 +290,6 @@
 				7A9AAEF42354BCF5001E4EDE /* Model */,
 				7AA0058D23422DF6000A60DE /* sdkApiVideo.h */,
 				7AA0058E23422DF6000A60DE /* Info.plist */,
-				C7B589332594D8D500EF60B3 /* TaskExecutor.swift */,
-				C79123AC25CC60F200F96703 /* RequestBuilder.swift */,
 			);
 			path = sdkApiVideo;
 			sourceTree = "<group>";
