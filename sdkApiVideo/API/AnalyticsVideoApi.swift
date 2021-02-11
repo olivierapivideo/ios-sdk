@@ -45,7 +45,7 @@ public class AnalyticsVideoApi{
                 apiPath = self.environnement + ApiPaths.analyticsVideo.rawValue + idVideo + "?currentPage=\(number + 1)&pageSize=25"
             }
             
-            var request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+            let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
             
             let group = DispatchGroup()
             group.enter()

@@ -17,10 +17,7 @@
 		7AA0059B23422DF9000A60DE /* sdkApiVideo.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AA0058D23422DF6000A60DE /* sdkApiVideo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C702352B23D6EF03004882F3 /* AnalyticsVideoApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = C702352A23D6EF03004882F3 /* AnalyticsVideoApi.swift */; };
 		C702352D23D6F4F0004882F3 /* AnalyticsVideoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C702352C23D6F4F0004882F3 /* AnalyticsVideoTests.swift */; };
-		C711420F25C40BF900F99504 /* tennis court.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = C711420E25C40BF900F99504 /* tennis court.mp4 */; };
 		C711421525C40F9E00F99504 /* MultipartUploadInputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = C711421425C40F9E00F99504 /* MultipartUploadInputStream.swift */; };
-		C734223525D1B0B900AB7227 /* shopping-basket.png in Resources */ = {isa = PBXBuildFile; fileRef = C734223425D1B0B900AB7227 /* shopping-basket.png */; };
-		C734223B25D284DC00AB7227 /* my_captions.vtt in Resources */ = {isa = PBXBuildFile; fileRef = C734223A25D284DC00AB7227 /* my_captions.vtt */; };
 		C73B54B923CCC1B00066781F /* AnalyticClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73B54B823CCC1B00066781F /* AnalyticClient.swift */; };
 		C73B54BB23CCC2FC0066781F /* AnalyticData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73B54BA23CCC2FC0066781F /* AnalyticData.swift */; };
 		C73B54BD23CCC3180066781F /* AnalyticDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73B54BC23CCC3180066781F /* AnalyticDevice.swift */; };
@@ -38,8 +35,6 @@
 		C7600A2623E06DFA00049EC0 /* Chapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7600A2523E06DFA00049EC0 /* Chapter.swift */; };
 		C7600A2823E0767800049EC0 /* ChapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7600A2723E0767700049EC0 /* ChapterTests.swift */; };
 		C79123AD25CC60F200F96703 /* RequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79123AC25CC60F200F96703 /* RequestBuilder.swift */; };
-		C79123BC25CD572800F96703 /* Test lapin.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = C79123BB25CD572800F96703 /* Test lapin.mp4 */; };
-		C79123C225D170B900F96703 /* tennis.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = C79123C125D170B900F96703 /* tennis.mp4 */; };
 		C79431AF23A7978C00674A10 /* PlayerApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79431AE23A7978C00674A10 /* PlayerApi.swift */; };
 		C79431B123A7982C00674A10 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79431B023A7982C00674A10 /* Player.swift */; };
 		C79431B323A7986000674A10 /* AssetsPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79431B223A7986000674A10 /* AssetsPlayer.swift */; };
@@ -144,12 +139,8 @@
 		C70342E4241648EF007ED037 /* xcschememanagement.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = xcschememanagement.plist; sourceTree = "<group>"; };
 		C70342E7241648EF007ED037 /* sdkApiVideo.xcscheme */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = sdkApiVideo.xcscheme; sourceTree = "<group>"; };
 		C70342E8241648EF007ED037 /* sdkApiVideoTests.xcscheme */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = sdkApiVideoTests.xcscheme; sourceTree = "<group>"; };
-		C711420B25C404C500F99504 /* Watermelon.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = Watermelon.mp4; sourceTree = "<group>"; };
-		C711420E25C40BF900F99504 /* tennis court.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "tennis court.mp4"; sourceTree = "<group>"; };
 		C711421425C40F9E00F99504 /* MultipartUploadInputStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipartUploadInputStream.swift; sourceTree = "<group>"; };
 		C715ECF923574B4F00FDAC93 /* sdkApiVideo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = sdkApiVideo.xcodeproj; sourceTree = "<group>"; };
-		C734223425D1B0B900AB7227 /* shopping-basket.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "shopping-basket.png"; sourceTree = "<group>"; };
-		C734223A25D284DC00AB7227 /* my_captions.vtt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = my_captions.vtt; sourceTree = "<group>"; };
 		C73B54B823CCC1B00066781F /* AnalyticClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticClient.swift; sourceTree = "<group>"; };
 		C73B54BA23CCC2FC0066781F /* AnalyticData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticData.swift; sourceTree = "<group>"; };
 		C73B54BC23CCC3180066781F /* AnalyticDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticDevice.swift; sourceTree = "<group>"; };
@@ -167,8 +158,6 @@
 		C7600A2523E06DFA00049EC0 /* Chapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chapter.swift; sourceTree = "<group>"; };
 		C7600A2723E0767700049EC0 /* ChapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterTests.swift; sourceTree = "<group>"; };
 		C79123AC25CC60F200F96703 /* RequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestBuilder.swift; sourceTree = "<group>"; };
-		C79123BB25CD572800F96703 /* Test lapin.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Test lapin.mp4"; sourceTree = "<group>"; };
-		C79123C125D170B900F96703 /* tennis.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = tennis.mp4; sourceTree = "<group>"; };
 		C79431AE23A7978C00674A10 /* PlayerApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerApi.swift; sourceTree = "<group>"; };
 		C79431B023A7982C00674A10 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		C79431B223A7986000674A10 /* AssetsPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetsPlayer.swift; sourceTree = "<group>"; };
@@ -493,12 +482,6 @@
 		C711420825C4038500F99504 /* asset */ = {
 			isa = PBXGroup;
 			children = (
-				C734223A25D284DC00AB7227 /* my_captions.vtt */,
-				C734223425D1B0B900AB7227 /* shopping-basket.png */,
-				C79123C125D170B900F96703 /* tennis.mp4 */,
-				C79123BB25CD572800F96703 /* Test lapin.mp4 */,
-				C711420E25C40BF900F99504 /* tennis court.mp4 */,
-				C711420B25C404C500F99504 /* Watermelon.mp4 */,
 			);
 			path = asset;
 			sourceTree = "<group>";
@@ -648,11 +631,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C79123C225D170B900F96703 /* tennis.mp4 in Resources */,
-				C734223B25D284DC00AB7227 /* my_captions.vtt in Resources */,
-				C734223525D1B0B900AB7227 /* shopping-basket.png in Resources */,
-				C711420F25C40BF900F99504 /* tennis court.mp4 in Resources */,
-				C79123BC25CD572800F96703 /* Test lapin.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

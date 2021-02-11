@@ -37,8 +37,6 @@ public class LiveStreamApi{
     //MARK: Create LiveStream
     public func create(name: String, record: Bool?, playerId: String?, completion: @escaping(Bool, Response?)->()){
         let apiPath = self.environnement  + ApiPaths.liveStream.rawValue
-        var created = false
-        var resp: Response?
         var body = [
             "name" : name,
             ] as Dictionary<String, AnyObject>
@@ -49,19 +47,11 @@ public class LiveStreamApi{
             body["playerId"] = playerId as AnyObject?
         }
         var request = RequestBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
-        
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let session = RequestBuilder().urlSessionBuilder()
         TaskExecutor().execute(session: session, request: request){(data, response) in
-            if(data != nil){
-                created = true
-                completion(created, resp)
-            }else{
-                resp = response
-                completion(created, resp)
-            }
+            completion(data != nil,response)
         }
     }
     //MARK: Create Basic LiveStream
@@ -160,24 +150,14 @@ public class LiveStreamApi{
         }
                 
         var request = RequestBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
-        
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
         
         let group = DispatchGroup()
         group.enter()
         
-        var updated = false
-        var resp: Response?
-        
         let session = RequestBuilder().urlSessionBuilder()
         TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
-            if(data != nil){
-                updated = true
-                completion(updated, resp)
-            }else{
-                resp = response
-                completion(updated, resp)
-            }
+            completion(data != nil, response)
         }
         group.wait()
     }
@@ -224,21 +204,13 @@ public class LiveStreamApi{
     public func deleteLiveStream(liveStreamId: String, completion: @escaping (Bool, Response?)->()){
         let apiPath = self.environnement + ApiPaths.liveStream.rawValue + "/\(liveStreamId)"
         let request = RequestBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
-        var deleted = false
-        var resp : Response?
         
         let group = DispatchGroup()
         group.enter()
         
         let session = RequestBuilder().urlSessionBuilder()
         TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
-            if(data != nil){
-                deleted = true
-                completion(deleted, resp)
-            }else{
-                resp = response
-                completion(deleted, resp)
-            }
+            completion(data != nil, response)
         }
         group.wait()
     }
@@ -247,45 +219,26 @@ public class LiveStreamApi{
     public func uploadImageThumbnail(liveStreamId: String, url: URL, filePath: String, fileName: String, imageData: Data, completion: @escaping (Bool, Response?) ->()){
         let apiPath = self.environnement + ApiPaths.liveStream.rawValue + "/\(liveStreamId)" + ApiPaths.thumbnail.rawValue
         let boundary = generateBoundaryString()
-        var request = RequestBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        var request = RequestBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
         
-        request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? createBodyWithData(data: imageData, filePath: filePath, fileName: fileName, boundary: boundary)
-        
-        var isChanged = false
-        var resp: Response?
         
         let session = RequestBuilder().urlSessionBuilder()
         TaskExecutor().execute(session: session, request: request){(data, response) in
-            if(data != nil){
-                isChanged = true
-                completion(isChanged, resp)
-            }else{
-                resp = response
-                completion(isChanged, resp)
-            }
+            completion(data != nil, response)
         }
     }
     
     public func deleteThumbnail(liveStreamId: String, completion: @escaping (Bool, Response?)->()){
         let apiPath = self.environnement + ApiPaths.liveStream.rawValue + "/\(liveStreamId)" + ApiPaths.thumbnail.rawValue
         let request = RequestBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
-        var deleted = false
-        var resp : Response?
         
         let group = DispatchGroup()
         group.enter()
-        
 
         let session = RequestBuilder().urlSessionBuilder()
         TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
-            if(data != nil){
-                deleted = true
-                completion(deleted, resp)
-            }else{
-                resp = response
-                completion(deleted, resp)
-            }
+            completion(data != nil, response)
         }
         group.wait()
     }

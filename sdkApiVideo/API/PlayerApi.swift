@@ -49,24 +49,13 @@ public class PlayerApi{
             "hideTitle" : player.hideTitle!,
             "forceLoop" : player.forceLoop!,
             ] as Dictionary<String, AnyObject>
-        var created = false
-        var resp: Response?
+
         var request = RequestBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
-        
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
         let session = RequestBuilder().urlSessionBuilder()
         
         TaskExecutor().execute(session: session, request: request){(data, response) in
-            if(data != nil){
-                created = true
-                resp = nil
-                completion(created, resp)
-            }else{
-                resp = response
-                completion(created, resp)
-            }
+            completion(data != nil, response)
         }
     }
     
@@ -154,8 +143,6 @@ public class PlayerApi{
             "hideTitle": player.hideTitle!,
             "forceLoop" : player.forceLoop!,
             ] as Dictionary<String, AnyObject>
-        var updated = false
-        var resp: Response?
         var request = RequestBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
@@ -165,13 +152,7 @@ public class PlayerApi{
         
         let session = RequestBuilder().urlSessionBuilder()
         TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
-            if(data != nil){
-                updated = true
-                completion(updated, resp)
-            }else{
-                resp = response
-                completion(updated, resp)
-            }
+            completion(data != nil, response)
         }
         group.wait()
     }
@@ -180,44 +161,25 @@ public class PlayerApi{
     public func uploadLogo(playerId: String, url: URL, filePath: String, fileName: String, imageData: Data, completion: @escaping (Bool, Response?) ->()){
         let apiPath = self.environnement + ApiPaths.players.rawValue + "/\(playerId)" + ApiPaths.logoPlayer.rawValue
         let boundary = generateBoundaryString()
-        var uploaded = false
-        var resp : Response?
-        var request = RequestBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
-        request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        var request = RequestBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
         request.httpBody = try? createBodyWithData(data: imageData, filePath: filePath, fileName: fileName, boundary: boundary)
         
         let session = RequestBuilder().urlSessionBuilder()
         TaskExecutor().execute(session: session, request: request){ (data, response) in
-            if(data != nil){
-                uploaded = true
-                completion(uploaded, resp)
-            }else{
-                resp = response
-                completion(uploaded, resp)
-            }
+            completion(data != nil, response)
         }
     }
     
     //MARK: Delete Player
     public func deletePlayer(playerId: String, completion: @escaping (Bool, Response?) ->()){
         let apiPath = self.environnement + ApiPaths.players.rawValue + "/\(playerId)"
-        var deleted = false
-        var resp : Response?
-        
         let request = RequestBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
-                
         let group = DispatchGroup()
         group.enter()
         
         let session = RequestBuilder().urlSessionBuilder()
         TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
-            if(data != nil){
-                deleted = true
-                completion(deleted,resp)
-            }else{
-                resp = response
-                completion(deleted,resp)
-            }
+            completion(data != nil, response)
         }
         group.wait()
     }

@@ -519,7 +519,7 @@ class LiveStreamTests: XCTestCase {
     //MARK: test Delete Live Stream Success
     func testDeleteLiveStream_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let liveStreamId = "liwSrwKvC6LFStOLe5Awrsp"
+        let liveStreamId = "liWl49txMbBMJCJBTAXuIyT"
         var isAuthentified = false
         var liveStreamApi: LiveStreamApi!
         var isDeleted = false

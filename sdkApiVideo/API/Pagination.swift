@@ -36,7 +36,6 @@ public class Pagination{
                 nbOfItems = itemsTotal as! Int
             }else{
                 resp = response
-                print("resp : \(String(describing: resp))" )
             }
         }
         group.wait()

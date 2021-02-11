@@ -19,10 +19,10 @@ class VideoTests: XCTestCase {
         var isUploaded = false
         var response: Response?
         var videoApi: VideoApi!
-        let filename = "tennis.mp4"
+        let filename = "less-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "tennis", ofType: "mp4")!
-        let url = bundle.url(forResource: "tennis", withExtension: "mp4")
+        let filepath = bundle.path(forResource: "less-than-128mb", ofType: "mp4")!
+        let url = bundle.url(forResource: "less-than-128mb", withExtension: "mp4")
         
         self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
@@ -60,10 +60,10 @@ class VideoTests: XCTestCase {
         let videoUri = "/videos/vi74hVxjnfAyQ9RQ9Ip27c2w/source"
         var response: Response?
         var videoApi: VideoApi!
-        let filename = "tennis.mp4"
+        let filename = "more-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "tennis court", ofType: "mp4")!
-        let url = bundle.url(forResource: "tennis court", withExtension: "mp4")
+        let filepath = bundle.path(forResource: "more-than-128mb", ofType: "mp4")!
+        let url = bundle.url(forResource: "more-than-128mb", withExtension: "mp4")
         
         self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
@@ -147,7 +147,7 @@ class VideoTests: XCTestCase {
         var response: Response?
         var videoApi: VideoApi!
 
-        self.authClient.createSandbox(key: "Gp75Z8pDZgx7aJdH2UeecrKMTeHJEvPMGAfi6rUTV"){ (authentified, resp) in
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
                 isAuthentified = authentified
                 videoApi = self.authClient.videoApi
@@ -188,9 +188,9 @@ class VideoTests: XCTestCase {
         var response: Response?
         var videoApi: VideoApi!
         let videoUri = "/videos/vi4iXjwxFJiSlJG1wYNarnPw/source"
-        let filename = "Test lapin.mp4"
+        let filename = "less-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "Test lapin.mp4", ofType: "mp4") ?? "/Users/romainpetit/Documents/GitHub/ios-sdk/sdkApiVideoTests/asset/Test lapin.mp4"
+        let filepath = bundle.path(forResource: "less-than-128mb", ofType: "mp4")!
         let url = URL(fileURLWithPath: filepath)
         
         self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
@@ -220,7 +220,7 @@ class VideoTests: XCTestCase {
             print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
         }
         
-        waitForExpectations(timeout: 100, handler: nil)
+        waitForExpectations(timeout: 100000, handler: nil)
         XCTAssertTrue(isUploaded)
         XCTAssertNil(response)
         
@@ -235,10 +235,10 @@ class VideoTests: XCTestCase {
         var response: Response?
         var videoApi: VideoApi!
         let videoUri = "/videos/vi41UsGbyZ9WnUfeC6e/source"
-        let filename = "lapin.mp4"
+        let filename = "less-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "video-test", ofType: "mp4")!
-        let url = bundle.url(forResource: "video-test", withExtension: "mp4")
+        let filepath = bundle.path(forResource: "less-than-128mb", ofType: "mp4")!
+        let url = bundle.url(forResource: "less-than-128mb", withExtension: "mp4")
         
         self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
@@ -281,11 +281,11 @@ class VideoTests: XCTestCase {
         var response: Response?
         var videoApi: VideoApi!
         let videoUri = "/videos/vi4TR6kBRQx7dnaCR7DcQtqX/source"
-        _ = Bundle(for: type(of: self)).path(forResource: "rabit", ofType: "mp4")
-        let filename = "rabit.mp4"
+        _ = Bundle(for: type(of: self)).path(forResource: "more-than-128mb", ofType: "mp4")
+        let filename = "more-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "2019_03_03_15_34_31", ofType: "mp4")!
-        let url = bundle.url(forResource: "2019_03_03_15_34_31", withExtension: "mp4")!
+        let filepath = bundle.path(forResource: "more-than-128mb", ofType: "mp4")!
+        let url = bundle.url(forResource: "more-than-128mb", withExtension: "mp4")!
         
         self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
@@ -326,11 +326,11 @@ class VideoTests: XCTestCase {
         var response: Response?
         var videoApi: VideoApi!
         let videoUri = "/videos/dhjefhizhfiu/source"
-        _ = Bundle(for: type(of: self)).path(forResource: "rabit", ofType: "mp4")
-        let filename = "rabit.mp4"
+        _ = Bundle(for: type(of: self)).path(forResource: "more-than-128mb", ofType: "mp4")
+        let filename = "more-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "2019_03_03_15_34_31", ofType: "mp4")!
-        let url = bundle.url(forResource: "2019_03_03_15_34_31", withExtension: "mp4")!
+        let filepath = bundle.path(forResource: "more-than-128mb", ofType: "mp4")!
+        let url = bundle.url(forResource: "more-than-128mb", withExtension: "mp4")!
         
         self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
             if authentified{
@@ -365,12 +365,12 @@ class VideoTests: XCTestCase {
     //MARK: test Create func Success
     func testCreate_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let title = "title_test_kart"
-        let description = "description_test_kart"
-        let filename = "kart.mov"
+        let title = "title_test"
+        let description = "description_test"
+        let filename = "more-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "IMG_2226", ofType: "MOV")!
-        let url = bundle.url(forResource: "IMG_2226", withExtension: "MOV")!
+        let filepath = bundle.path(forResource: "more-than-128mb", ofType: "mp4")!
+        let url = bundle.url(forResource: "more-than-128mb", withExtension: "mp4")!
         var isAuthentified = false
         var isCreated = false
         var response: Response?
@@ -401,7 +401,7 @@ class VideoTests: XCTestCase {
             print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
         }
         
-        waitForExpectations(timeout: 10000, handler: nil)
+        waitForExpectations(timeout: 100000, handler: nil)
         XCTAssertTrue(isCreated)
         XCTAssertNil(response)
     }
@@ -411,10 +411,10 @@ class VideoTests: XCTestCase {
         let expectation = self.expectation(description: "request should succeed")
         let title = "title_test_kart"
         let description = "description_test_kart"
-        let filename = "kart.mov"
+        let filename = "more-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "IMG_2226", ofType: "MOV")!
-        let url = bundle.url(forResource: "IMG_2226", withExtension: "MOV")!
+        let filepath = bundle.path(forResource: "more-than-128mb", ofType: "mp4")!
+        let url = bundle.url(forResource: "more-than-128mb", withExtension: "mp4")!
         var isAuthentified = false
         var isCreated = false
         var response: Response?
@@ -605,7 +605,7 @@ class VideoTests: XCTestCase {
     //MARK: test Delete Video Success
     func testDeleteVideo_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi3EYj5RzBRap8ojItrKbjLl"
+        let videoId = "vi7OtyAkjEix9b30BI4l0l0u"
         var isAuthentified = false
         var videoApi: VideoApi!
         var isDeleted = false
@@ -640,7 +640,7 @@ class VideoTests: XCTestCase {
     //MARK: test Update video info
     func testUpdateVideo_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi4iXjwxFJiSlJG1wYNarnPw"
+        let videoId = "vi4p6DGpmN2vcOaAxzz9rn9k"
         var isAuthentified = false
         var videoApi: VideoApi!
         var isUpdated = false
@@ -786,7 +786,7 @@ class VideoTests: XCTestCase {
     //MARK: test Pick Thumbnail Success
     func testPickThumbnail_success(){
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
+        let videoId = "vi4p6DGpmN2vcOaAxzz9rn9k"
         var isAuthentified = false
         var videoApi: VideoApi!
 

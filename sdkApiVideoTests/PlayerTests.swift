@@ -16,7 +16,7 @@ class PlayerTests: XCTestCase {
     
     let player_error = Player(playerId: "1", shapeMargin: 10, shapeRadius: 3, shapeAspect: "flat", shapeBackgroundTop: "rgba(50, 50, 50, .7)", shapeBackgroundBottom: "rgba(50, 50, 50, .8)", text: "rgba(255, 255, 255, .95)", link: "rgba(255, 0, 0, .95)", linkHover: "rba(255, 255, 255, .75)", linkActive: "rgba(255, 0, 0, .75)", trackPlayed: "rgba(255, 255, 255, .95)", trackUnplayed: "rgba(255, 255, 255, .1)", trackBackground: "rgba(0, 0, 0, 0)", backgroundTop: "rgba(72, 4, 45, 1)", backgroundBottom: "rgba(94, 95, 89, 1)", backgroundText: "rgba(255, 255, 255, .95)", enableApi: false, enableControls: false, forceAutoplay: true, hideTitle: true, forceLoop: false, assets: nil, language: "fr", createdAt: "", updatedAt: "")
     
-    let player_updated_success = Player(playerId: "pt3fePLEGw8xS6NF5x5AyuVB", shapeMargin: 3, shapeRadius: 10, shapeAspect: "flat", shapeBackgroundTop: "rgba(50, 50, 50, .7)", shapeBackgroundBottom: "rgba(50, 50, 50, .8)", text: "rgba(255, 255, 255, .95)", link: "rgba(255, 0, 0, .95)", linkHover: "rgba(255, 255, 255, .75)", linkActive: "rgba(255, 0, 0, .75)", trackPlayed: "rgba(255, 255, 255, .95)", trackUnplayed: "rgba(255, 255, 255, .1)", trackBackground: "rgba(0, 0, 0, 0)", backgroundTop: "rgba(72, 4, 45, 1)", backgroundBottom: "rgba(94, 95, 89, 1)", backgroundText: "rgba(255, 255, 255, .95)", enableApi: false, enableControls: false, forceAutoplay: true, hideTitle: true, forceLoop: false, assets: nil, language: "fr", createdAt: "", updatedAt: "")
+    let player_updated_success = Player(playerId: "pt7bXgxGybO8qgoddczYhxJt", shapeMargin: 3, shapeRadius: 10, shapeAspect: "flat", shapeBackgroundTop: "rgba(50, 50, 50, .7)", shapeBackgroundBottom: "rgba(50, 50, 50, .8)", text: "rgba(255, 255, 255, .95)", link: "rgba(255, 0, 0, .95)", linkHover: "rgba(255, 255, 255, .75)", linkActive: "rgba(255, 0, 0, .75)", trackPlayed: "rgba(255, 255, 255, .95)", trackUnplayed: "rgba(255, 255, 255, .1)", trackBackground: "rgba(0, 0, 0, 0)", backgroundTop: "rgba(72, 4, 45, 1)", backgroundBottom: "rgba(94, 95, 89, 1)", backgroundText: "rgba(255, 255, 255, .95)", enableApi: false, enableControls: false, forceAutoplay: true, hideTitle: true, forceLoop: false, assets: nil, language: "fr", createdAt: "", updatedAt: "")
     
     let player_updated_error = Player(playerId: "jiforz", shapeMargin: 3, shapeRadius: 10, shapeAspect: "flat", shapeBackgroundTop: "rgba(50, 50, 50, .7)", shapeBackgroundBottom: "rgba(50, 50, 50, .8)", text: "rgba(255, 255, 255, .95)", link: "rgba(255, 0, 0, .95)", linkHover: "rgba(255, 255, 255, .75)", linkActive: "rgba(255, 0, 0, .75)", trackPlayed: "rgba(255, 255, 255, .95)", trackUnplayed: "rgba(255, 255, 255, .1)", trackBackground: "rgba(0, 0, 0, 0)", backgroundTop: "rgba(72, 4, 45, 1)", backgroundBottom: "rgba(94, 95, 89, 1)", backgroundText: "rgba(255, 255, 255, .95)", enableApi: false, enableControls: false, forceAutoplay: true, hideTitle: true, forceLoop: false, assets: nil, language: "fr", createdAt: "", updatedAt: "")
     
@@ -409,7 +409,7 @@ class PlayerTests: XCTestCase {
         var response: Response?
         var isDeleted = false
         var isAuthentified = false
-        let playerId = "pt5QlLMHiQfIyurXXEDrrqf4"
+        let playerId = "pt63ti5Au4eWLeXfSufQl8fw"
         var playerApi: PlayerApi!
         
         self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in

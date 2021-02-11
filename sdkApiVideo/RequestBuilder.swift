@@ -10,72 +10,63 @@ import Foundation
 
 public class RequestBuilder{
     
-    public func urLRequestBuilder(apiPath: String, tokenType: String, key: String) -> URLRequest{
+    private func genericUrLRequestBuilder(apiPath: String, tokenType: String, key: String, httpMethod: String) -> URLRequest{
         var request = URLRequest(url: URL(string: apiPath)!)
         request.setValue("\(tokenType) \(key)", forHTTPHeaderField: "Authorization")
-        request.setValue("api.video SDK (ios; v:0.1.4; )", forHTTPHeaderField: "User-Agent")
+        request.setValue("api.video SDK (ios; v:0.1.5; )", forHTTPHeaderField: "User-Agent")
+        request.httpMethod = httpMethod
         return request
     }
     
-    private func setContentType(request: URLRequest){
-        var request = request
+    private func setContentType(request: inout URLRequest){
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+    }
+    private func setMultipartContentType( request: inout URLRequest, boundary: String){
+        request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
     }
     
     public func postClientUrlRequestBuilder(apiPath: String) -> URLRequest{
         var request = URLRequest(url: URL(string: apiPath)!)
-        setContentType(request: request)
+        setContentType(request: &request)
         request.httpMethod = "POST"
-        
-        let sHeaderFields = request.allHTTPHeaderFields
-        print(sHeaderFields as Any)
-
         return request
     }
     
     public func postUrlRequestBuilder(apiPath: String, tokenType: String, key: String) -> URLRequest{
-        var request = urLRequestBuilder(apiPath: apiPath, tokenType: tokenType, key: key)
-        request.httpMethod = "POST"
-        
-        let sHeaderFields = request.allHTTPHeaderFields
-        print(sHeaderFields as Any)
+        var request = genericUrLRequestBuilder(apiPath: apiPath, tokenType: tokenType, key: key, httpMethod: "POST")
+        setContentType(request: &request)
         return request
     }
     
-    public func getUrlRequestBuilder(apiPath: String, tokenType: String, key: String) -> URLRequest{
-        var request = urLRequestBuilder(apiPath: apiPath, tokenType: tokenType, key: key)
-        setContentType(request: request)
-        request.httpMethod = "GET"
+    public func postMultipartUrlRequestBuilder(apiPath: String, tokenType: String, key: String, boundary: String) -> URLRequest{
+        var request = genericUrLRequestBuilder(apiPath: apiPath, tokenType: tokenType, key: key, httpMethod: "POST")
+        setMultipartContentType(request: &request, boundary: boundary)
+        return request
         
-        let sHeaderFields = request.allHTTPHeaderFields
-        print(sHeaderFields as Any)
+    }
+    
+    public func getUrlRequestBuilder(apiPath: String, tokenType: String, key: String) -> URLRequest{
+        var request = genericUrLRequestBuilder(apiPath: apiPath, tokenType: tokenType, key: key, httpMethod: "GET")
+        setContentType(request: &request)
         return request
     }
     
     public func deleteUrlRequestBuilder(apiPath: String, tokenType: String, key: String) -> URLRequest{
-        var request = urLRequestBuilder(apiPath: apiPath, tokenType: tokenType, key: key)
-        setContentType(request: request)
-        request.httpMethod = "DELETE"
-        
-        let sHeaderFields = request.allHTTPHeaderFields
-        print(sHeaderFields as Any)
+        var request = genericUrLRequestBuilder(apiPath: apiPath, tokenType: tokenType, key: key, httpMethod: "DELETE")
+        setContentType(request: &request)
         return request
     }
     
     public func patchUrlRequestBuilder(apiPath: String, tokenType: String, key: String) -> URLRequest{
-        var request = urLRequestBuilder(apiPath: apiPath, tokenType: tokenType, key: key)
-        setContentType(request: request)
-        request.httpMethod = "PATCH"
-        
-        let sHeaderFields = request.allHTTPHeaderFields
-        print(sHeaderFields as Any)
+        var request = genericUrLRequestBuilder(apiPath: apiPath, tokenType: tokenType, key: key, httpMethod: "PATCH")
+        setContentType(request: &request)
         return request
     }
     
     
     public func urlSessionBuilder() -> URLSession {
         let sessionConfig = URLSessionConfiguration.default
-        sessionConfig.httpAdditionalHeaders = ["User-Agent": "api.video SDK (ios; v:0.1.4; )"]
+        sessionConfig.httpAdditionalHeaders = ["User-Agent": "api.video SDK (ios; v:0.1.5; )"]
         let session = URLSession(configuration: sessionConfig)
         
         return session

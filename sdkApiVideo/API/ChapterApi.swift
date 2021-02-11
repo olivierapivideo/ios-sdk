@@ -36,23 +36,13 @@ public class ChapterApi{
     public func uploadChapter(videoId: String, url: URL, filePath: String, fileName: String, language: String, completion: @escaping(Bool, Response?) -> ()){
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.chapters.rawValue + "/" + language
         let boundary = generateBoundaryString()
-        var request = RequestBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        var request = RequestBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
         
-        request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? createBodyWithUrl(url: url, filePath: filePath, fileName: fileName, boundary: boundary)
-        
-        var isUploaded = false
-        var resp: Response?
         
         let session = RequestBuilder().urlSessionBuilder()
         TaskExecutor().execute(session: session, request: request){ (data, response) in
-            if(data != nil){
-                isUploaded = true
-                completion(isUploaded, resp)
-            }else{
-                resp = response
-                completion(isUploaded, resp)
-            }
+            completion(data != nil, response)
         }
     }
     
@@ -129,21 +119,13 @@ public class ChapterApi{
     public func deleteChapter(videoId: String, language: String, completion: @escaping(Bool, Response?)->()){
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.chapters.rawValue + "/\(language)"
         let request = RequestBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
-        var deleted = false
-        var resp : Response?
        
         let group = DispatchGroup()
         group.enter()
         
         let session = RequestBuilder().urlSessionBuilder()
         TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
-            if(data != nil){
-                deleted = true
-                completion(deleted, resp)
-            }else{
-                resp = response
-                completion(deleted, resp)
-            }
+            completion(data != nil, response)
         }
         group.wait()
     }
