@@ -35,14 +35,14 @@ public class VideoApi{
         let apiPath = self.environnement + ApiPaths.videos.rawValue
         let body = ["title": title, "description": description] as Dictionary<String, String>
         
-        var request = RequestBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        var request = RequestsBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
         
         var resp: Response?
         var uri = ""
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request){ (data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request){ (data, response) in
             if(data != nil){
                 let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
 
@@ -120,11 +120,11 @@ public class VideoApi{
         let apiPath = self.environnement + videoUri
         let boundary = generateBoundaryString()
         
-        var request = RequestBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
+        var request = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
         request.httpBody = try? createBodyWithUrl(url: url, filePath: filePath, fileName: fileName, boundary: boundary)
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request){(data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request){(data, response) in
             completion(data != nil, response)
         }
     }
@@ -150,15 +150,15 @@ public class VideoApi{
             
             let multipartUploadInputStream = MultipartUploadInputStream(inputStream: fileStream, fileName: fileName, partName: "file", contentType: "video/mp4", chunkStart: Int64(offset), chunkEnd: Int64(chunkEnd), semaphore: semaphore)
             
-            var urlRequest = RequestBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: multipartUploadInputStream.getBoundary())
+            var urlRequest = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: multipartUploadInputStream.getBoundary())
             urlRequest.setValue("bytes \(offset)-\(chunkEnd-1)/\(Int64(fileSize))", forHTTPHeaderField: "Content-Range")
             urlRequest.setValue(String(multipartUploadInputStream.getSize()), forHTTPHeaderField: "Content-Length")
             urlRequest.httpBodyStream = multipartUploadInputStream
             
            
-            let session = RequestBuilder().urlSessionBuilder()
+            let session = RequestsBuilder().urlSessionBuilder()
             
-            TaskExecutor().execute(session: session, request: urlRequest){(data, response) in
+            TasksExecutor().execute(session: session, request: urlRequest){(data, response) in
                 if(data != nil){
                     readBytes = chunkEnd
                     semaphore.signal()
@@ -277,14 +277,14 @@ public class VideoApi{
     }
     
     private func requestUploadHeavyVideo(apiPath: String, boundary: String, fileName: String, filePath: String, fileSizeMax: String, fileSizeMin: String, fileSize: String, number: Int, maxChunk:Int, data: Data, semaphore: DispatchSemaphore, completion: @escaping (Bool, Response?) -> ()){
-        var request = RequestBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
+        var request = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
         
         request.setValue("bytes \(fileSizeMin)-\(fileSizeMax)/\(fileSize)", forHTTPHeaderField: "Content-Range")
         request.httpBody = try? createBodyWithData(data: data, filePath: filePath, fileName: fileName, boundary: boundary)
         
         var resp: Response?
         let session = URLSession.shared
-        TaskExecutor().execute(session: session, request: request){(data, response) in
+        TasksExecutor().execute(session: session, request: request){(data, response) in
             self.sumChunk = self.sumChunk + ( number + 1)
             if(data != nil){
                 resp = nil
@@ -316,13 +316,13 @@ public class VideoApi{
     public func getVideoByID(videoId: String, completion: @escaping (Video?, Response?) -> ()){
         var video: Video?
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/" + videoId
-        let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){ (data, response) in
             if(data != nil){
 //                let jsonData = try? JSONSerialization.data(withJSONObject:data)
                 video = try? self.decoder.decode(Video.self, from: data!)
@@ -345,14 +345,14 @@ public class VideoApi{
         for number in (0...nbItems){
             let apiPath = "\(path)?currentPage=\(number + 1)&pageSize=25"
             
-            let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+            let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
             
             let group = DispatchGroup()
             group.enter()
             
-            let session = RequestBuilder().urlSessionBuilder()
+            let session = RequestsBuilder().urlSessionBuilder()
             
-            TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+            TasksExecutor().execute(session: session, request: request, group: group){ (data, response) in
                 if(data != nil){
                     let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                     for data in json!["data"] as! [AnyObject]{
@@ -374,14 +374,14 @@ public class VideoApi{
     public func deleteVideo(videoId: String, completion: @escaping (Bool, Response?) -> ()){
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)"
         
-        let request = RequestBuilder().deleteUrlRequestBuilder(apiPath: apiPath,tokenType: self.tokenType, key: self.key)
+        let request = RequestsBuilder().deleteUrlRequestBuilder(apiPath: apiPath,tokenType: self.tokenType, key: self.key)
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
+        let session = RequestsBuilder().urlSessionBuilder()
         
-        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+        TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
             completion(data != nil, response)
         }
         group.wait()
@@ -397,14 +397,14 @@ public class VideoApi{
             "panoramic": video.isPanoramic!
         ] as Dictionary<String, AnyObject>
         
-        var request = RequestBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        var request = RequestsBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){ (data, response) in
             let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
             if(json != nil){
                 completion(data != nil, response)
@@ -421,9 +421,9 @@ public class VideoApi{
         var status: Status?
         var resp: Response?
         
-        let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath,tokenType: self.tokenType, key: self.key)
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request){ (data, response) in
+        let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath,tokenType: self.tokenType, key: self.key)
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request){ (data, response) in
             if(data != nil){
                 status = try? self.decoder.decode(Status.self, from: data!)
                 completion(status, resp)
@@ -443,11 +443,11 @@ public class VideoApi{
             "timecode": timecode,
         ] as Dictionary<String, String>
         
-        var request = RequestBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        var request = RequestsBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
-        let session = RequestBuilder().urlSessionBuilder()
+        let session = RequestsBuilder().urlSessionBuilder()
         
-        TaskExecutor().execute(session: session, request: request){ (data, response) in
+        TasksExecutor().execute(session: session, request: request){ (data, response) in
             completion(data != nil, response)
         }
     }
@@ -459,14 +459,14 @@ public class VideoApi{
         
         let boundary = generateBoundaryString()
         
-        var request = RequestBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
+        var request = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
         request.httpBody = try? createBodyWithData(data: imageData, filePath: filePath, fileName: fileName, boundary: boundary)
         
         var isChanged = false
         var resp: Response?
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request){ (data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request){ (data, response) in
             completion(data != nil, response)
         }
     }

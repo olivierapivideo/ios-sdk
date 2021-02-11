@@ -1,5 +1,5 @@
 //
-//  TaskExecutor.swift
+//  TasksExecutor.swift
 //  sdkApiVideo
 //
 //  Created by Romain Petit on 11/02/2021.
@@ -7,7 +7,7 @@
 //
 
 import Foundation
-public class TaskExecutor{
+public class TasksExecutor{
     private let decoder = JSONDecoder()
     public func execute(session: URLSession, request: URLRequest, group: DispatchGroup?, completion: @escaping (Data?, Response?) -> ()){
         var resp: Response? = nil

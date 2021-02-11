@@ -46,13 +46,13 @@ public class AnalyticsLiveApi{
                 apiPath = self.environnement + ApiPaths.analyticsLiveStream.rawValue + idLiveStream + "?currentPage=\(number + 1)&pageSize=25"
             }
             
-            let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+            let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
             
             let group = DispatchGroup()
             group.enter()
             
-            let session = RequestBuilder().urlSessionBuilder()
-            TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+            let session = RequestsBuilder().urlSessionBuilder()
+            TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
                 if(data != nil){
                     let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                     for data in json!["data"] as! [AnyObject]{

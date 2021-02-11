@@ -29,7 +29,7 @@ public class Client{
     private func create(key: String, completion: @escaping (Bool, Response?) ->()){
         let apiPath = ApiPaths.apiVideoProduction.rawValue + ApiPaths.createProduction.rawValue
         let body = ["apiKey": key] as Dictionary<String, String>
-        var request = RequestBuilder().postClientUrlRequestBuilder(apiPath: apiPath)
+        var request = RequestsBuilder().postClientUrlRequestBuilder(apiPath: apiPath)
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
         
         let group = DispatchGroup()
@@ -38,8 +38,8 @@ public class Client{
         var resp: Response?
         var created = false
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){(data,response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){(data,response) in
             if(data != nil){
                 let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
 

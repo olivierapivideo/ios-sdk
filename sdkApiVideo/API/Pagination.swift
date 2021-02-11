@@ -22,13 +22,13 @@ public class Pagination{
     public func getNbOfItems(apiPath: String)-> Int{
         var resp: Response?
         var nbOfItems = 0
-        let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
             if(data != nil){
                 let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                 let pagination = json!["pagination"] as! Dictionary<String, AnyObject>

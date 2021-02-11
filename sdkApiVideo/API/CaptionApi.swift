@@ -28,12 +28,12 @@ public class CaptionApi{
     public func upload(videoId: String, url: URL, filePath: String, fileName: String, language: String, completion: @escaping(Bool, Response?) -> ()){
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.captions.rawValue + "/" + language
         let boundary = generateBoundaryString()
-        var request = RequestBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key,boundary: boundary)
+        var request = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key,boundary: boundary)
         
         request.httpBody = try? createBodyWithUrl(url: url, filePath: filePath, fileName: fileName, boundary: boundary)
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request){(data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request){(data, response) in
             completion(data != nil, response)
         }
     }
@@ -42,13 +42,13 @@ public class CaptionApi{
         var caption: Caption?
         var resp: Response?
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.captions.rawValue + "/\(language)"
-        let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
             if(data != nil){
                 caption = try? self.decoder.decode(Caption.self, from: data!)
                 completion(caption, resp)
@@ -71,13 +71,13 @@ public class CaptionApi{
         }
         for number in (0...nbItems){
             let apiPath = "\(path)?currentPage=\(number + 1)&pageSize=25"
-            let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+            let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
             
             let group = DispatchGroup()
             group.enter()
             
-            let session = RequestBuilder().urlSessionBuilder()
-            TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+            let session = RequestsBuilder().urlSessionBuilder()
+            TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
                 if(data != nil){
                     let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                     for d in json!["data"] as! [AnyObject]{
@@ -99,15 +99,15 @@ public class CaptionApi{
         let body = [
         "default": isDefault,
         ] as Dictionary<String, AnyObject>
-        var request = RequestBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        var request = RequestsBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
             completion(data != nil, response)
         }
         group.wait()
@@ -115,13 +115,13 @@ public class CaptionApi{
     
     public func deleteCaption(videoId: String, language: String, completion: @escaping(Bool, Response?)->()){
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.captions.rawValue + "/\(language)"
-        let request = RequestBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        let request = RequestsBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
             completion(data != nil, response)
         }
         group.wait()

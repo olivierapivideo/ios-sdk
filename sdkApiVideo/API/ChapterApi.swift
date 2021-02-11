@@ -36,12 +36,12 @@ public class ChapterApi{
     public func uploadChapter(videoId: String, url: URL, filePath: String, fileName: String, language: String, completion: @escaping(Bool, Response?) -> ()){
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.chapters.rawValue + "/" + language
         let boundary = generateBoundaryString()
-        var request = RequestBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
+        var request = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
         
         request.httpBody = try? createBodyWithUrl(url: url, filePath: filePath, fileName: fileName, boundary: boundary)
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request){ (data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request){ (data, response) in
             completion(data != nil, response)
         }
     }
@@ -55,13 +55,13 @@ public class ChapterApi{
         var chapter: Chapter?
         var resp: Response?
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.chapters.rawValue + "/\(language)"
-        let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
             if(data != nil){
                 chapter = try? self.decoder.decode(Chapter.self, from: data!)
                 completion(chapter, resp)
@@ -88,13 +88,13 @@ public class ChapterApi{
         }
         for number in (0...nbItems){
             let apiPath = "\(path)?currentPage=\(number + 1)&pageSize=25"
-            let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+            let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
             
             let group = DispatchGroup()
             group.enter()
             
-            let session = RequestBuilder().urlSessionBuilder()
-            TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+            let session = RequestsBuilder().urlSessionBuilder()
+            TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
                 if(data != nil){
                     let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                     for d in json!["data"] as! [AnyObject]{
@@ -118,13 +118,13 @@ public class ChapterApi{
      */
     public func deleteChapter(videoId: String, language: String, completion: @escaping(Bool, Response?)->()){
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.chapters.rawValue + "/\(language)"
-        let request = RequestBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        let request = RequestsBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
        
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
             completion(data != nil, response)
         }
         group.wait()

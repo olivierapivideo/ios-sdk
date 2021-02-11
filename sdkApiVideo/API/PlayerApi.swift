@@ -50,11 +50,11 @@ public class PlayerApi{
             "forceLoop" : player.forceLoop!,
             ] as Dictionary<String, AnyObject>
 
-        var request = RequestBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        var request = RequestsBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
-        let session = RequestBuilder().urlSessionBuilder()
+        let session = RequestsBuilder().urlSessionBuilder()
         
-        TaskExecutor().execute(session: session, request: request){(data, response) in
+        TasksExecutor().execute(session: session, request: request){(data, response) in
             completion(data != nil, response)
         }
     }
@@ -71,13 +71,13 @@ public class PlayerApi{
         }
         for number in (0...nbItems){
             let apiPath = "\(path)?currentPage=\(number + 1)&pageSize=25"
-            let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+            let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
             
             let group = DispatchGroup()
             group.enter()
             
-            let session = RequestBuilder().urlSessionBuilder()
-            TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+            let session = RequestsBuilder().urlSessionBuilder()
+            TasksExecutor().execute(session: session, request: request, group: group){ (data, response) in
                 if(data != nil){
                     let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
                     for d in json!["data"] as! [AnyObject]{
@@ -100,13 +100,13 @@ public class PlayerApi{
         var player: Player?
         var resp: Response?
         let apiPath = self.environnement + ApiPaths.players.rawValue + "/" + playerId
-        let request = RequestBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
                 
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){ (data, response) in
             if(data != nil){
                 player = try! self.decoder.decode(Player.self, from: data!)
                 completion(player,resp)
@@ -143,15 +143,15 @@ public class PlayerApi{
             "hideTitle": player.hideTitle!,
             "forceLoop" : player.forceLoop!,
             ] as Dictionary<String, AnyObject>
-        var request = RequestBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        var request = RequestsBuilder().patchUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
         
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){ (data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){ (data, response) in
             completion(data != nil, response)
         }
         group.wait()
@@ -161,11 +161,11 @@ public class PlayerApi{
     public func uploadLogo(playerId: String, url: URL, filePath: String, fileName: String, imageData: Data, completion: @escaping (Bool, Response?) ->()){
         let apiPath = self.environnement + ApiPaths.players.rawValue + "/\(playerId)" + ApiPaths.logoPlayer.rawValue
         let boundary = generateBoundaryString()
-        var request = RequestBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
+        var request = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
         request.httpBody = try? createBodyWithData(data: imageData, filePath: filePath, fileName: fileName, boundary: boundary)
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request){ (data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request){ (data, response) in
             completion(data != nil, response)
         }
     }
@@ -173,12 +173,12 @@ public class PlayerApi{
     //MARK: Delete Player
     public func deletePlayer(playerId: String, completion: @escaping (Bool, Response?) ->()){
         let apiPath = self.environnement + ApiPaths.players.rawValue + "/\(playerId)"
-        let request = RequestBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
+        let request = RequestsBuilder().deleteUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         let group = DispatchGroup()
         group.enter()
         
-        let session = RequestBuilder().urlSessionBuilder()
-        TaskExecutor().execute(session: session, request: request, group: group){(data, response) in
+        let session = RequestsBuilder().urlSessionBuilder()
+        TasksExecutor().execute(session: session, request: request, group: group){(data, response) in
             completion(data != nil, response)
         }
         group.wait()
