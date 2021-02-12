@@ -336,7 +336,12 @@ public class VideoApi{
     public func getAllVideos(completion: @escaping ([Video], Response?) -> ()){
         var videos: [Video] = []
         let path = self.environnement + ApiPaths.videos.rawValue
-        var nbItems = self.pagination.getNbOfItems(apiPath: path)
+        var nbItems = 0
+        self.pagination.getNbOfItems(apiPath: path){(nb, response)in
+            if(response == nil){
+                nbItems = nb
+            }
+        }
         var resp: Response?
         
         if(nbItems > 0){
@@ -461,9 +466,6 @@ public class VideoApi{
         
         var request = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
         request.httpBody = try? createBodyWithData(data: imageData, filePath: filePath, fileName: fileName, boundary: boundary)
-        
-        var isChanged = false
-        var resp: Response?
         
         let session = RequestsBuilder().urlSessionBuilder()
         TasksExecutor().execute(session: session, request: request){ (data, response) in

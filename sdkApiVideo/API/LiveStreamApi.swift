@@ -103,7 +103,12 @@ public class LiveStreamApi{
     public func getAllLiveStreams(completion: @escaping ([LiveStream], Response?)->()){
         var liveStreams: [LiveStream] = []
         let path = self.environnement + ApiPaths.liveStream.rawValue
-        var nbItems = self.pagination.getNbOfItems(apiPath: path)
+        var nbItems = 0
+        self.pagination.getNbOfItems(apiPath: path){(nb, response)in
+            if(response == nil){
+                nbItems = nb
+            }
+        }
         var resp: Response?
         
         if(nbItems > 0){

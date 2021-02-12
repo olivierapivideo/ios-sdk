@@ -80,7 +80,12 @@ public class ChapterApi{
     public func getAllChapters(videoId: String, completion: @escaping([Chapter], Response?) -> ()){
         var chapters: [Chapter] = []
         let path = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.chapters.rawValue
-        var nbItems = self.pagination.getNbOfItems(apiPath: path)
+        var nbItems = 0
+        self.pagination.getNbOfItems(apiPath: path){(nb, response) in
+            if(response == nil){
+                nbItems = nb
+            }
+        }
         var resp: Response?
         
         if(nbItems > 0){

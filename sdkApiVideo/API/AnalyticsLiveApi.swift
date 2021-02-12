@@ -29,9 +29,19 @@ public class AnalyticsLiveApi{
         var nbItems = 0
         
         if(period != nil){
-            nbItems = self.pagination.getNbOfItems(apiPath: self.environnement + "\(ApiPaths.analyticsLiveStream.rawValue)\(idLiveStream)?period=\(period!)")
+            
+            self.pagination.getNbOfItems(apiPath: self.environnement + "\(ApiPaths.analyticsLiveStream.rawValue)\(idLiveStream)?period=\(period!)"){(nb, response) in
+                if(response == nil){
+                    nbItems = nb
+                }
+            }
         }else{
-            nbItems = self.pagination.getNbOfItems(apiPath: self.environnement + ApiPaths.analyticsLiveStream.rawValue + idLiveStream)
+            self.pagination.getNbOfItems(apiPath: self.environnement + ApiPaths.analyticsLiveStream.rawValue + idLiveStream){(nb, response) in
+                if(response != nil){
+                    nbItems = nb
+                }
+            }
+
         }
         var resp: Response?
         
