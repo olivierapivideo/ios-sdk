@@ -29,9 +29,17 @@ public class AnalyticsVideoApi{
         var resp: Response?
         
         if(period != nil){
-            nbPages = self.pagination.getNbOfItems(apiPath: "\(String(describing: self.environnement))\(ApiPaths.analyticsVideo.rawValue)\(idVideo)?period=\(period!)")
+            self.pagination.getNbOfItems(apiPath: "\(String(describing: self.environnement))\(ApiPaths.analyticsVideo.rawValue)\(idVideo)?period=\(period!)"){(nb, response) in
+                if(response == nil){
+                    nbPages = nb
+                }
+            }
         }else{
-            nbPages = self.pagination.getNbOfItems(apiPath: self.environnement + ApiPaths.analyticsVideo.rawValue + idVideo)
+            self.pagination.getNbOfItems(apiPath: self.environnement + ApiPaths.analyticsVideo.rawValue + idVideo){(nb, response) in
+                if(response == nil){
+                    nbPages = nb
+                }
+            }
         }
         
         if(nbPages > 0){

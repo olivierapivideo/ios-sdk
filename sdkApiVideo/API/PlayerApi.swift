@@ -63,7 +63,12 @@ public class PlayerApi{
     public func getAllPlayers(completion: @escaping ([Player], Response?) ->()){
         var players: [Player] = []
         let path = self.environnement + ApiPaths.players.rawValue
-        var nbItems = self.pagination.getNbOfItems(apiPath: path)
+        var nbItems = 0
+        self.pagination.getNbOfItems(apiPath: path){(nb, response) in
+            if(response == nil){
+                nbItems = nb
+            }
+        }
         var resp: Response?
         
         if(nbItems > 0){

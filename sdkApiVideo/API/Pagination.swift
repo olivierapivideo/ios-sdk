@@ -19,8 +19,7 @@ public class Pagination{
         self.key = key
     }
     
-    public func getNbOfItems(apiPath: String)-> Int{
-        var resp: Response?
+    public func getNbOfItems(apiPath: String, completion: @escaping (Int, Response?) ->()){
         var nbOfItems = 0
         let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         
@@ -34,11 +33,11 @@ public class Pagination{
                 let pagination = json!["pagination"] as! Dictionary<String, AnyObject>
                 let itemsTotal = pagination["pagesTotal"]
                 nbOfItems = itemsTotal as! Int
+                completion(nbOfItems, nil)
             }else{
-                resp = response
+                completion(nbOfItems, response)
             }
         }
         group.wait()
-        return nbOfItems
     }
 }

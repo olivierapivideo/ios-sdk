@@ -63,7 +63,12 @@ public class CaptionApi{
     public func getAllCaptions(videoId: String, completion: @escaping([Caption], Response?) -> ()){
         var captions: [Caption] = []
         let path = self.environnement + ApiPaths.videos.rawValue + "/\(videoId)" + ApiPaths.captions.rawValue
-        var nbItems = self.pagination.getNbOfItems(apiPath: path)
+        var nbItems = 0
+        self.pagination.getNbOfItems(apiPath: path){(nb, response)in
+            if(response == nil){
+                nbItems = nb
+            }
+        }
         var resp: Response?
         
         if(nbItems > 0){
