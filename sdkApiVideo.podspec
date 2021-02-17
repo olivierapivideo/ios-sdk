@@ -2,7 +2,7 @@
 Pod::Spec.new do |spec|
 
   spec.name         = "sdkApiVideo"
-  spec.version      = "0.1.5"
+  spec.version      = "0.1.6"
   spec.summary      = "IOS client written in Swift for api.video service"
   spec.swift_version = "5.0"
 
