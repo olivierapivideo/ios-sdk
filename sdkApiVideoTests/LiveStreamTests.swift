@@ -34,7 +34,7 @@ class LiveStreamTests: XCTestCase {
         }
         
         if isAuthentified{
-            liveStreamApi.create(name: name, record: record, playerId: playerId){(created, resp) in
+            liveStreamApi.create(name: name, record: record, playerId: playerId, isPublic: nil){(created, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
                     isCreated = created
@@ -225,6 +225,90 @@ class LiveStreamTests: XCTestCase {
         
     }
     
+    //MARK: test Basic Private Create Live Stream Success
+    // NO Record and no player
+    func testPrivateCreate_success(){
+        let expectation = self.expectation(description: "request should succeed")
+        let name = "private"
+        var liveStreamApi: LiveStreamApi!
+        
+        var isAuthentified = false
+        var isCreated = false
+        var response: Response?
+        
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
+            if authentified{
+                isAuthentified = authentified
+                liveStreamApi = self.authClient.liveStreamApi
+            }else{
+                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+            }
+        }
+        
+        if isAuthentified{
+            liveStreamApi.createPrivate(name: name){(created, resp) in
+                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
+                    expectation.fulfill()
+                    isCreated = created
+                    response = resp
+                }else{
+                    expectation.fulfill()
+                    isCreated = created
+                    response = resp
+                }
+            }
+        }else{
+            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        }
+        
+        waitForExpectations(timeout: 100, handler: nil)
+        XCTAssertTrue(isCreated)
+        XCTAssertNil(response)
+        
+    }
+    
+    //MARK:test Create Basic Private Live Stream Error
+    func testPrivateCreate_error(){
+        let expectation = self.expectation(description: "request should succeed")
+        let name = "title_test"
+        let record = false
+        var liveStreamApi: LiveStreamApi!
+        
+        var isAuthentified = false
+        var isCreated = false
+        var response: Response?
+        
+        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
+            if authentified{
+                isAuthentified = authentified
+                liveStreamApi = self.authClient.liveStreamApi
+            }else{
+                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+            }
+        }
+        
+        if isAuthentified{
+            liveStreamApi.createPrivate(name: name, record: record){(created, resp) in
+                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
+                    expectation.fulfill()
+                    isCreated = created
+                    response = resp
+                }else{
+                    expectation.fulfill()
+                    isCreated = created
+                    response = resp
+                }
+            }
+        }else{
+            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        }
+        
+        waitForExpectations(timeout: 100, handler: nil)
+        XCTAssertFalse(isCreated)
+        XCTAssertNotNil(response)
+        
+    }
+    
     //MARK:test Create Live Stream Error
     // player selected does not exist
     func testCreate_error(){
@@ -248,7 +332,7 @@ class LiveStreamTests: XCTestCase {
         }
         
         if isAuthentified{
-            liveStreamApi.create(name: name, record: record, playerId: playerId){(created, resp) in
+            liveStreamApi.create(name: name, record: record, playerId: playerId, isPublic: nil){(created, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
                     isCreated = created
