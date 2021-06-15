@@ -78,25 +78,11 @@ public class VideoApi{
                     // if data lenght < 30mb upload small file else upload big file
                     if(dataLen < ((1024 * 1024) * 30)){
                         self.uploadSmallVideoFile(videoUri: uri, fileName: fileName, filePath: filePath, url: url){ (video, resp) in
-                            // if video is uploaded
-                            if(video != nil){
-                                completion(video, resp)
-                            }
-                            // if video upload return error
-                            else{
-                                completion(nil, resp)
-                            }
+                            completion(video, resp)
                         }
                     }else{
                         self.uploadLargeStream(videoUri: uriVideo!, fileName: fileName, filePath: filePath, url: url){(video, resp) in
-                            if(video != nil){
-                                completion(video, resp)
-                            }
-                            // if video upload return error
-                            else{
-                                completion(nil, resp)
-                            }
-                            
+                            completion(video, resp)
                         }
                     }
                 }
