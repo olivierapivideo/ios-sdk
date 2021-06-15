@@ -16,9 +16,10 @@ class VideoTests: XCTestCase {
     func testStreamUploadSuccess(){
         let expectation = self.expectation(description: "request should succeed")
         var isAuthentified = false
-        var isUploaded = false
         var response: Response?
         var videoApi: VideoApi!
+        var finalVideo: Video?
+        var isVideoPublic: Bool?
         let filename = "less-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
         let filepath = bundle.path(forResource: "less-than-128mb", ofType: "mp4")!
@@ -34,14 +35,14 @@ class VideoTests: XCTestCase {
         }
         
         if isAuthentified{
-            videoApi.create(title: filename, description: "desc", fileName: filename, filePath: filepath, url: url!){(uploaded, resp) in
+            videoApi.create(title: filename, description: "desc", fileName: filename, filePath: filepath, url: url!){(video, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
-                    isUploaded = uploaded
+                    finalVideo = video
                     response = resp
                 }else{
                     expectation.fulfill()
-                    isUploaded = uploaded
+                    finalVideo = video
                     response = resp
                 }
             }
@@ -49,17 +50,19 @@ class VideoTests: XCTestCase {
             print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
         }
         
+        
         waitForExpectations(timeout: 100, handler: nil)
+        XCTAssertNotNil(finalVideo)
         XCTAssertNil(response)
     }
     //MARK: test init video success
     func testuploadLargeStream_Success(){
         let expectation = self.expectation(description: "request should succeed")
         var isAuthentified = false
-        var isUploaded = false
-        let videoUri = "/videos/vi74hVxjnfAyQ9RQ9Ip27c2w/source"
+        let videoUri = "/videos/vi3XLxjxHgUikjn1v5wHtbVH/source"
         var response: Response?
         var videoApi: VideoApi!
+        var finalVideo: Video?
         let filename = "more-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
         let filepath = bundle.path(forResource: "more-than-128mb", ofType: "mp4")!
@@ -75,14 +78,14 @@ class VideoTests: XCTestCase {
         }
         
         if isAuthentified{
-            videoApi.uploadLargeStream(videoUri: videoUri, fileName: filename, filePath: filepath, url: url!){(uploaded, resp) in
+            videoApi.uploadLargeStream(videoUri: videoUri, fileName: filename, filePath: filepath, url: url!){(video, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
-                    isUploaded = uploaded
+                    finalVideo = video
                     response = resp
                 }else{
                     expectation.fulfill()
-                    isUploaded = uploaded
+                    finalVideo = video
                     response = resp
                 }
             }
@@ -91,6 +94,7 @@ class VideoTests: XCTestCase {
         }
         
         waitForExpectations(timeout: 100, handler: nil)
+        XCTAssertNotNil(finalVideo)
         XCTAssertNil(response)
     }
     
@@ -184,9 +188,9 @@ class VideoTests: XCTestCase {
     func testUploadSmallVideo_success(){
         let expectation = self.expectation(description: "request should succeed")
         var isAuthentified = false
-        var isUploaded = false
         var response: Response?
         var videoApi: VideoApi!
+        var finalVideo: Video?
         let videoUri = "/videos/vi4iXjwxFJiSlJG1wYNarnPw/source"
         let filename = "less-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
@@ -204,14 +208,14 @@ class VideoTests: XCTestCase {
         
         
         if isAuthentified{
-            videoApi.uploadSmallVideoFile(videoUri: videoUri, fileName: filename, filePath: filepath, url: url){ (uploaded, resp) in
+            videoApi.uploadSmallVideoFile(videoUri: videoUri, fileName: filename, filePath: filepath, url: url){ (video, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
-                    isUploaded = uploaded
+                    finalVideo = video
                     response = resp
                 }else{
                     expectation.fulfill()
-                    isUploaded = uploaded
+                    finalVideo = video
                     response = resp
                 }
             }
@@ -221,7 +225,7 @@ class VideoTests: XCTestCase {
         }
         
         waitForExpectations(timeout: 100000, handler: nil)
-        XCTAssertTrue(isUploaded)
+        XCTAssertNotNil(finalVideo)
         XCTAssertNil(response)
         
     }
@@ -231,9 +235,9 @@ class VideoTests: XCTestCase {
     func testUploadSmallVideo_error(){
         let expectation = self.expectation(description: "request should succeed")
         var isAuthentified = false
-        var isUploaded = false
         var response: Response?
         var videoApi: VideoApi!
+        var finalVideo: Video?
         let videoUri = "/videos/vi41UsGbyZ9WnUfeC6e/source"
         let filename = "less-than-128mb.mp4"
         let bundle = Bundle(for: type(of: self))
@@ -250,14 +254,14 @@ class VideoTests: XCTestCase {
         }
         
         if isAuthentified{
-            videoApi.uploadSmallVideoFile(videoUri: videoUri, fileName: filename, filePath: filepath, url: url!){ (uploaded, resp) in
+            videoApi.uploadSmallVideoFile(videoUri: videoUri, fileName: filename, filePath: filepath, url: url!){ (video, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
-                    isUploaded = uploaded
+                    finalVideo = video
                     response = resp
                 }else{
                     expectation.fulfill()
-                    isUploaded = uploaded
+                    finalVideo = video
                     response = resp
                 }
             }
@@ -267,7 +271,7 @@ class VideoTests: XCTestCase {
         }
         
         waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertFalse(isUploaded)
+        XCTAssertNil(finalVideo)
         XCTAssertNotNil(response)
         
     }
@@ -368,11 +372,11 @@ class VideoTests: XCTestCase {
         let title = "title_test"
         let description = "description_test"
         let filename = "more-than-128mb.mp4"
+        var finalVideo: Video?
         let bundle = Bundle(for: type(of: self))
         let filepath = bundle.path(forResource: "more-than-128mb", ofType: "mp4")!
         let url = bundle.url(forResource: "more-than-128mb", withExtension: "mp4")!
         var isAuthentified = false
-        var isCreated = false
         var response: Response?
         var videoApi: VideoApi!
 
@@ -385,14 +389,13 @@ class VideoTests: XCTestCase {
             }
         }
         if isAuthentified{
-            videoApi.create(title: title, description: description, fileName: filename, filePath: filepath, url: url){ (created, resp) in
+            videoApi.create(title: title, description: description, fileName: filename, filePath: filepath, url: url){ (video, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
-                    isCreated = created
+                    finalVideo = video
                     response = resp
                 }else{
                     expectation.fulfill()
-                    isCreated = created
                     response = resp
                 }
             }
@@ -402,7 +405,7 @@ class VideoTests: XCTestCase {
         }
         
         waitForExpectations(timeout: 100000, handler: nil)
-        XCTAssertTrue(isCreated)
+        XCTAssertNotNil(finalVideo)
         XCTAssertNil(response)
     }
     
@@ -412,11 +415,11 @@ class VideoTests: XCTestCase {
         let title = "title_test_kart"
         let description = "description_test_kart"
         let filename = "more-than-128mb.mp4"
+        var finalVideo: Video?
         let bundle = Bundle(for: type(of: self))
         let filepath = bundle.path(forResource: "more-than-128mb", ofType: "mp4")!
         let url = bundle.url(forResource: "more-than-128mb", withExtension: "mp4")!
         var isAuthentified = false
-        var isCreated = false
         var response: Response?
         var videoApi: VideoApi!
 
@@ -429,14 +432,14 @@ class VideoTests: XCTestCase {
             }
         }
         if isAuthentified{
-            videoApi.create(title: title, description: description, fileName: filename, filePath: filepath, url: url){ (created, resp) in
+            videoApi.create(title: title, description: description, fileName: filename, filePath: filepath, url: url){ (video, resp) in
                 if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                     expectation.fulfill()
-                    isCreated = created
+                    finalVideo = video
                     response = resp
                 }else{
                     expectation.fulfill()
-                    isCreated = created
+                    finalVideo = video
                     response = resp
                 }
                 
@@ -447,7 +450,7 @@ class VideoTests: XCTestCase {
         }
         
         waitForExpectations(timeout: 10000, handler: nil)
-        XCTAssertFalse(isCreated)
+        XCTAssertNil(finalVideo)
         XCTAssertNotNil(response)
     }
     
