@@ -58,15 +58,14 @@ public class VideoApi{
     
     
     //MARK: Init and Upload video
-    public func create(title: String, description: String, fileName: String, filePath: String, url: URL, completion: @escaping (Bool, Response?) -> ()){
+    public func create(title: String, description: String, fileName: String, filePath: String, url: URL, completion: @escaping (Video?, Response?) -> ()){
         var uriVideo: String?
-        var videoCreated = false
         initVideo(title: title, description: description){ (uri, resp) in
             //if Error
             if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                 //return videoCreated = false
                 //return descripted response
-                completion(videoCreated, resp)
+                completion(nil, resp)
             }
             // if video is created
             else{
@@ -78,34 +77,18 @@ public class VideoApi{
                     uriVideo = uri
                     // if data lenght < 30mb upload small file else upload big file
                     if(dataLen < ((1024 * 1024) * 30)){
-                        self.uploadSmallVideoFile(videoUri: uri, fileName: fileName, filePath: filePath, url: url){ (crea, resp) in
-                            // if video is uploaded
-                            if(crea){
-                                videoCreated = crea
-                                completion(videoCreated, resp)
-                            }
-                            // if video upload return error
-                            else{
-                                completion(videoCreated, resp)
-                            }
+                        self.uploadSmallVideoFile(videoUri: uri, fileName: fileName, filePath: filePath, url: url){ (video, resp) in
+                            completion(video, resp)
                         }
                     }else{
-                        self.uploadLargeStream(videoUri: uriVideo!, fileName: fileName, filePath: filePath, url: url){(crea, resp) in
-                            if(crea){
-                                videoCreated = crea
-                                completion(videoCreated, resp)
-                            }
-                            // if video upload return error
-                            else{
-                                completion(videoCreated, resp)
-                            }
-                            
+                        self.uploadLargeStream(videoUri: uriVideo!, fileName: fileName, filePath: filePath, url: url){(video, resp) in
+                            completion(video, resp)
                         }
                     }
                 }
                 // if error with the uri
                 else{
-                    completion(videoCreated, resp)
+                    completion(nil, resp)
                 }
             }
         }
@@ -116,25 +99,30 @@ public class VideoApi{
     
     
     //MARK: Upload small video
-    public func uploadSmallVideoFile(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Bool, Response?) -> ()){
+    public func uploadSmallVideoFile(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Video?, Response?) -> ()){
         let apiPath = self.environnement + videoUri
         let boundary = generateBoundaryString()
+        var video: Video?
         
         var request = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
         request.httpBody = try? createBodyWithUrl(url: url, filePath: filePath, fileName: fileName, boundary: boundary)
         
         let session = RequestsBuilder().urlSessionBuilder()
         TasksExecutor().execute(session: session, request: request){(data, response) in
-            completion(data != nil, response)
+            if(data != nil){
+                video = try? self.decoder.decode(Video.self, from: data!)
+            }
+            completion(video, response)
         }
     }
     
     //MARK: Upload Large video by stream (WIP)
-    public func uploadLargeStream(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Bool, Response?) -> ()){
+    public func uploadLargeStream(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Video?, Response?) -> ()){
         let chunkSize: Int = ((1024 * 1024) * 30) // MB
         let apiPath = self.environnement + videoUri
         let data = try? Data(contentsOf: url)
         let fileSize = data!.count
+        var video: Video?
         
         let semaphore = DispatchSemaphore(value: 0)
         var readBytes: Int = 0
@@ -162,15 +150,16 @@ public class VideoApi{
                 if(data != nil){
                     readBytes = chunkEnd
                     semaphore.signal()
+                    video = try? self.decoder.decode(Video.self, from: data!)
                 }else{
-                    completion(false, response)
+                    completion(nil, response)
                 }
             }
             semaphore.wait()
             fileStream.close()
         }
         if(readBytes == fileSize){
-            completion(true, nil)
+            completion(video, nil)
         }
     }
     
