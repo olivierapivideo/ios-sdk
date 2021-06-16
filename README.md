@@ -41,15 +41,11 @@ self.videoApi = appDelegate.authClient.videoApi
 ```
 ### 6. Create and upload a video file
 ```swift
-self.videoApi.create(title: «title», description: «description», fileName: «filename», filePath: «filePath», url: «url»){ (uploaded, resp) in
+self.videoApi.create(title: «title», description: «description», fileName: «filename», filePath: «filePath», url: «url»){ (video, resp) in
     if(resp != nil){
         print("error : \((resp?.statusCode)!) -> \((resp?.message)!)")
     }else{
-        if(uploaded){
-            //Do whatever you want
-        }else{
-            // Do whatever you want
-        }
+        //Do whatever you want
     }
 }
 
@@ -108,19 +104,20 @@ videoApi.initVideo(title: title, description: description){ (uri, resp) in
 //Upload small video <128Mb
 let videoApi = client.videoApi
             
-videoApi.uploadSmallVideoFile(videoUri: VIDEO_URI, fileName: FILE_NAME, filePath: FILE_PATH, url: URL){ (uploaded, resp) in
+videoApi.uploadSmallVideoFile(videoUri: VIDEO_URI, fileName: FILE_NAME, filePath: FILE_PATH, url: URL){ (video, resp) in
     if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
         // Error
         // Do whatever you want
-        // uploaded == false & resp != nil
+        // video == nil & resp != nil
     }else{
         // Success
         // Do whatever you want
-        // uploaded == true & resp == nil
+        // video != nil & resp == nil
     }
 }
 ```
 ```swift
+// DEPRECATED
 //Upload big video
 let videoApi = client.videoApi
             
@@ -140,15 +137,15 @@ videoApi.uploadBigVideoFile(videoUri: VIDEOURI, fileName: FILENAME, filePath: FI
 //Create and auto upload video
 let videoApi = client.videoApi
             
-videoApi.create(title: title, description: description, fileName: filename, filePath: filepath, url: url){ (created, resp) in
+videoApi.create(title: title, description: description, fileName: filename, filePath: filepath, url: url){ (video, resp) in
     if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
         // Error
         // Do whatever you want
-        // created == false & resp != nil
+        // video == nil & resp != nil
     }else{
         // Success
         // Do whatever you want
-        // created == true & resp == nil
+        // video != nil & resp == nil
     }
 }
 ```
