@@ -16,8 +16,9 @@ public struct LiveStream: Codable{
     public var broadcasting: Bool?
     public var assets: Assets?
     public var playerId: String?
+    public var isPublic: Bool?
     
-    public init(liveStreamId: String?, streamKey: String?, name: String?, record: Bool?, broadcasting: Bool?, assets: Assets?, playerId: String?) {
+    public init(liveStreamId: String?, streamKey: String?, name: String?, record: Bool?, broadcasting: Bool?, assets: Assets?, playerId: String?, isPublic: Bool?) {
         self.liveStreamId = liveStreamId
         self.streamKey = streamKey
         self.name = name
@@ -25,6 +26,7 @@ public struct LiveStream: Codable{
         self.broadcasting = broadcasting
         self.assets = assets
         self.playerId = playerId
+        self.isPublic = isPublic
     }
     
     enum CodingKeys : String, CodingKey {
@@ -35,6 +37,7 @@ public struct LiveStream: Codable{
         case broadcasting
         case assets
         case playerId
+        case isPublic = "public"
     }
     
 }
