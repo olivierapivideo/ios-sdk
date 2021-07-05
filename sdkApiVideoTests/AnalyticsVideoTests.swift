@@ -9,42 +9,31 @@
 import XCTest
 @testable import sdkApiVideo
 
-class AnalyticsVideoTests: XCTestCase {
-    let authClient = Client()
+class AnalyticsVideoTests: Common {
+    var analyticsVideoApi: AnalyticsVideoApi?
     
-    func testSearchVideoAnalyticsById_success(){
+    override func setUp() {
+        super.setUp()
+        self.analyticsVideoApi = self.authClient.analyticsVideoApi
+    }
+    
+    func testSearchVideoAnalyticsById_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
-        var isAuthentified = false
-        var analyticsVideoApi: AnalyticsVideoApi!
         var analyticsData: [AnalyticData]?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                analyticsVideoApi = self.authClient.analyticsVideoApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.createVideo() { (v) in
+            self.analyticsVideoApi!.searchVideoAnalyticsById(idVideo: v.videoId!){(analytics, resp) in
+                analyticsData = analytics
+                response = resp
+                self.deleteVideo(video: v)
+                expectation.fulfill()
             }
         }
-        
-        if(isAuthentified){
-            analyticsVideoApi.searchVideoAnalyticsById(idVideo: videoId){(analytics, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    analyticsData = analytics
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    print("reussi")
-                    analyticsData = analytics
-                    response = resp
-                }
-            }
-        }
-        print("nb data = \(String(describing: analyticsData?.count))")
+    
         waitForExpectations(timeout: 100, handler: nil)
+        print("nb data = \(String(describing: analyticsData?.count))")
         XCTAssertNotNil(analyticsData)
         XCTAssertNil(response)
     }
@@ -53,39 +42,21 @@ class AnalyticsVideoTests: XCTestCase {
     // there is an issue with the api, so right now the analyticsData count will be 0 and response is nil
     // otherwise "response" should not be nil
     // and "analyticsData count is 0 
-    func testSearchVideoAnalyticsById_error(){
+    func testSearchVideoAnalyticsById_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
         let expectation = self.expectation(description: "request should succeed")
         let videoId = "viwywar"
-        var isAuthentified = false
-        var analyticsVideoApi: AnalyticsVideoApi!
         var analyticsData: [AnalyticData]?
         var response: Response?
-        
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                analyticsVideoApi = self.authClient.analyticsVideoApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+         
+        self.analyticsVideoApi!.searchVideoAnalyticsById(idVideo: videoId){(analytics, resp) in
+            analyticsData = analytics
+            response = resp
+            expectation.fulfill()
         }
         
-        if(isAuthentified){            
-            analyticsVideoApi.searchVideoAnalyticsById(idVideo: videoId){(analytics, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    analyticsData = analytics
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    print("reussi")
-                    analyticsData = analytics
-                    response = resp
-                }
-            }
-        }
-        print("nb data = \(String(describing: analyticsData?.count))")
         waitForExpectations(timeout: 100, handler: nil)
+        print("nb data = \(String(describing: analyticsData?.count))")
         XCTAssertNotNil(analyticsData)
         XCTAssertNil(response)
     }

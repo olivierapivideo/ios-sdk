@@ -9,380 +9,190 @@
 import XCTest
 @testable import sdkApiVideo
 
-class LiveStreamTests: XCTestCase {
-    let authClient = Client()
+class LiveStreamTests: Common {
+    var liveStreamApi: LiveStreamApi?
+    
+    override func setUp() {
+        super.setUp()
+        self.liveStreamApi = self.authClient.liveStreamApi
+    }
+    
+    
+    func deleteLiveStream(live: LiveStream?) {
+        self.liveStreamApi?.deleteLiveStream(liveStreamId: (live?.liveStreamId)!) { (s, r) in
+        }
+    }
     
     //MARK: test Create Live Stream Success
-    func testCreate_success(){
+    func testCreate_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let name = "full"
         let record = false
-        let playerId = "pt1lAdwkkmCFdJZ6f85o3Izv"
-        var liveStreamApi: LiveStreamApi!
-        
-        var isAuthentified = false
-        var isCreated = false
+        var livestream: LiveStream?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.createPlayer { p in
+            self.liveStreamApi!.create(name: name, record: record, playerId: p.playerId, isPublic: nil){(live, resp) in
+                livestream = live
+                response = resp
+                self.deletePlayer(player: p)
+                self.deleteLiveStream(live: livestream!)
+                expectation.fulfill()
             }
         }
         
-        if isAuthentified{
-            liveStreamApi.create(name: name, record: record, playerId: playerId, isPublic: nil){(created, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }
-            }
-        }else{
-            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-        }
+    
         
         waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertTrue(isCreated)
+        XCTAssertNotNil(livestream)
         XCTAssertNil(response)
         
     }
     
     //MARK: test Basic Create Live Stream Success
     // NO PLAYER
-    func testBasicCreate_success(){
+    func testBasicCreate_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let name = "title_test"
         let record = false
-        var liveStreamApi: LiveStreamApi!
-        
-        var isAuthentified = false
-        var isCreated = false
+        var livestream: LiveStream?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
         
-        if isAuthentified{
-            liveStreamApi.create(name: name, record: record){(created, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }
-            }
-        }else{
-            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.liveStreamApi!.create(name: name, record: record){(live, resp) in
+            livestream = live
+            response = resp
+            self.deleteLiveStream(live: livestream!)
+            expectation.fulfill()
         }
+
         
         waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertTrue(isCreated)
+        XCTAssertNotNil(livestream)
         XCTAssertNil(response)
         
     }
     
     //MARK: test Basic Create Live Stream Success
     // NO Record
-    func testNoRecordCreate_success(){
+    func testNoRecordCreate_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let name = "player"
-        let playerId = "pt1lAdwkkmCFdJZ6f85o3Izv"
-        var liveStreamApi: LiveStreamApi!
-        
-        var isAuthentified = false
-        var isCreated = false
+        var livestream: LiveStream?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.createPlayer { p in
+            self.liveStreamApi!.create(name: name, playerId: p.playerId!){(live, resp) in
+                livestream = live
+                response = resp
+                self.deletePlayer(player: p)
+                self.deleteLiveStream(live: livestream!)
+                expectation.fulfill()
             }
-        }
-        
-        if isAuthentified{
-            liveStreamApi.create(name: name, playerId: playerId){(created, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }
-            }
-        }else{
-            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
         }
         
         waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertTrue(isCreated)
+        XCTAssertNotNil(livestream)
         XCTAssertNil(response)
         
     }
     
     //MARK: test Basic Create Live Stream Success
     // NO Record and no player
-    func testNothingCreate_success(){
+    func testNothingCreate_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let name = "basic"
-        var liveStreamApi: LiveStreamApi!
-        
-        var isAuthentified = false
-        var isCreated = false
+        var livestream: LiveStream?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
         
-        if isAuthentified{
-            liveStreamApi.create(name: name){(created, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }
-            }
-        }else{
-            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.liveStreamApi!.create(name: name){(live, resp) in
+            livestream = live
+            response = resp
+            self.deleteLiveStream(live: livestream!)
+            expectation.fulfill()
         }
         
         waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertTrue(isCreated)
+        XCTAssertNotNil(livestream)
         XCTAssertNil(response)
         
     }
     
-    //MARK:test Create Basic Live Stream Error
-    func testBasicCreate_error(){
-        let expectation = self.expectation(description: "request should succeed")
-        let name = "title_test"
-        let record = false
-        var liveStreamApi: LiveStreamApi!
-        
-        var isAuthentified = false
-        var isCreated = false
-        var response: Response?
-        
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        
-        if isAuthentified{
-            liveStreamApi.create(name: name, record: record){(created, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }
-            }
-        }else{
-            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-        }
-        
-        waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertFalse(isCreated)
-        XCTAssertNotNil(response)
-        
-    }
     
     //MARK: test Basic Private Create Live Stream Success
     // NO Record and no player
-    func testPrivateCreate_success(){
+    func testPrivateCreate_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let name = "private"
-        var liveStreamApi: LiveStreamApi!
-        
-        var isAuthentified = false
-        var isCreated = false
+        var livestream: LiveStream?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        
-        if isAuthentified{
-            liveStreamApi.createPrivate(name: name){(created, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }
-            }
-        }else{
-            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-        }
-        
-        waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertTrue(isCreated)
-        XCTAssertNil(response)
-        
-    }
     
-    //MARK:test Create Basic Private Live Stream Error
-    func testPrivateCreate_error(){
-        let expectation = self.expectation(description: "request should succeed")
-        let name = "title_test"
-        let record = false
-        var liveStreamApi: LiveStreamApi!
-        
-        var isAuthentified = false
-        var isCreated = false
-        var response: Response?
-        
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        
-        if isAuthentified{
-            liveStreamApi.createPrivate(name: name, record: record){(created, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }
-            }
-        }else{
-            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.liveStreamApi!.createPrivate(name: name){(live, resp) in
+            livestream = live
+            response = resp
+            self.deleteLiveStream(live: livestream!)
+            expectation.fulfill()
         }
         
         waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertFalse(isCreated)
-        XCTAssertNotNil(response)
+        XCTAssertNotNil(livestream)
+        XCTAssertNil(response)
         
     }
     
     //MARK:test Create Live Stream Error
     // player selected does not exist
-    func testCreate_error(){
+    func testCreate_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let name = "title_test"
         let record = false
         let playerId = "pt3fePLEGw8xS6NF5x5A"
-        var liveStreamApi: LiveStreamApi!
-        
-        var isAuthentified = false
-        var isCreated = false
+        var livestream: LiveStream?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        
-        if isAuthentified{
-            liveStreamApi.create(name: name, record: record, playerId: playerId, isPublic: nil){(created, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }
-            }
-        }else{
-            print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.liveStreamApi!.create(name: name, record: record, playerId: playerId, isPublic: nil){(live, resp) in
+            livestream = live
+            response = resp
+            expectation.fulfill()
         }
         
         waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertFalse(isCreated)
+        XCTAssertNil(livestream)
         XCTAssertNotNil(response)
         
     }
     
     //MARK: test Get Live Stream By Id Success
-    func testGetLiveById_success(){
+    func testGetLiveById_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
-        let liveStreamId = "liwSrwKvC6LFStOLe5Awrsp"
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
         var liveStream: LiveStream?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.liveStreamApi!.create(name: "name"){(live, resp) in
+            self.liveStreamApi!.getLiveStreamById(liveStreamId: (live?.liveStreamId)!){(live, resp) in
+                liveStream = live
+                response = resp
+                self.deleteLiveStream(live: live)
+                expectation.fulfill()
             }
         }
-        if(isAuthentified){
-            liveStreamApi.getLiveStreamById(liveStreamId: liveStreamId){(live, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    liveStream = live
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    liveStream = live
-                    response = resp
-                }
-            }
-        }
+
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertNotNil(liveStream)
         XCTAssertNil(response)
@@ -390,35 +200,20 @@ class LiveStreamTests: XCTestCase {
     
     //MARK: test Get Live Stream By Id Error
     //wrong id
-    func testGetLiveById_error(){
+    func testGetLiveById_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let liveStreamId = "li3ueibB0OSdA0JUTU"
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
         var liveStream: LiveStream?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+        self.liveStreamApi!.getLiveStreamById(liveStreamId: liveStreamId){(live, resp) in
+            liveStream = live
+            response = resp
+            expectation.fulfill()
         }
-        if(isAuthentified){
-            liveStreamApi.getLiveStreamById(liveStreamId: liveStreamId){(live, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    liveStream = live
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    liveStream = live
-                    response = resp
-                }
-            }
-        }
+        
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertNil(liveStream)
         XCTAssertNotNil(response)
@@ -426,32 +221,19 @@ class LiveStreamTests: XCTestCase {
     
     
     //MARK: test Get All Live Stream Success
-    func testGetAllLives_success(){
+    func testGetAllLives_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
         var liveStreams: [LiveStream]?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        if isAuthentified{
-            liveStreamApi.getAllLiveStreams(){(lives, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    liveStreams = lives
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    liveStreams = lives
-                    response = resp
-                }
+        self.liveStreamApi!.create(name: "name"){(live, resp) in
+            self.liveStreamApi!.getAllLiveStreams(){(lives, resp) in
+                liveStreams = lives
+                response = resp
+                self.deleteLiveStream(live: live)
+                expectation.fulfill()
             }
         }
         waitForExpectations(timeout: 100, handler: nil)
@@ -462,138 +244,95 @@ class LiveStreamTests: XCTestCase {
     }
     
     //MARK: test Update Live Stream Success
-    func testUpdateLiveStream_success(){
+    func testUpdateLiveStream_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isUpdated = false
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
-        let liveStreamId = "liwSrwKvC6LFStOLe5Awrsp"
-        let playerId = "pt1lAdwkkmCFdJZ6f85o3Izv"
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        if(isAuthentified){
-            liveStreamApi.updateLiveStream(liveId: liveStreamId, name: "new name", record: true, playerId: playerId){(data,resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
+        self.createPlayer { p in
+            self.liveStreamApi!.create(name: "live", playerId: p.playerId!){(live, resp) in
+
+                self.liveStreamApi!.updateLiveStream(liveId: (live?.liveStreamId)!, name: "new name", record: true, playerId: p.playerId){(data,resp2) in
+                    self.deleteLiveStream(live: live)
+                    self.deletePlayer(player: p)
+                    response = resp2
+                    isUpdated = data
                     expectation.fulfill()
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUpdated = true
-                    response = resp
                 }
             }
         }
+    
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertTrue(isUpdated)
         XCTAssertNil(response)
     }
     
     //MARK: test Update Live Stream Error
-    func testUpdateLiveStream_error(){
+    func testUpdateLiveStream_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isUpdated = false
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
-        let liveStreamId = "li3ueibB0OSdA0JUTUzWb4UU"
-        let playerId = "jeiojdioazjdazjiod"
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        if(isAuthentified){
-            liveStreamApi.updateLiveStream(liveId: liveStreamId, name: "new name", record: true, playerId: playerId){(data,resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
+        self.createPlayer { p in
+            self.liveStreamApi!.create(name: "live", playerId: p.playerId!){(live, resp) in
+
+                self.liveStreamApi!.updateLiveStream(liveId: (live?.liveStreamId)!, name: "new name", record: true, playerId: "doesntexist"){(data,resp2) in
+                    self.deleteLiveStream(live: live)
+                    self.deletePlayer(player: p)
+                    response = resp2
+                    isUpdated = data
                     expectation.fulfill()
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUpdated = true
-                    response = resp
                 }
             }
         }
+        
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertFalse(isUpdated)
         XCTAssertNotNil(response)
     }
     
     //MARK: test Update Live Stream Success
-    func testUpdateLiveStream_record_success(){
+    func testUpdateLiveStream_record_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isUpdated = false
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
-        let liveStreamId = "liwSrwKvC6LFStOLe5Awrsp"
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.liveStreamApi!.create(name: "live"){(live, resp) in
+
+            self.liveStreamApi!.updateLiveStream(liveId: (live?.liveStreamId)!, record: false){(data,resp2) in
+                self.deleteLiveStream(live: live)
+                response = resp2
+                isUpdated = data
+                expectation.fulfill()
             }
         }
-        if(isAuthentified){
-            liveStreamApi.updateLiveStream(liveId: liveStreamId,record : false){(data,resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUpdated = true
-                    response = resp
-                }
-            }
-        }
+    
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertTrue(isUpdated)
         XCTAssertNil(response)
     }
     
     //MARK: test Update Live Stream Error
-    func testUpdateLiveStream_record_error(){
+    func testUpdateLiveStream_record_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isUpdated = false
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
         let liveStreamId = "li3ueibB0OSdA0JUTUzWbU"
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+        self.liveStreamApi!.updateLiveStream(liveId: liveStreamId,record : false){(data,resp) in
+            expectation.fulfill()
+            isUpdated = data
+            response = resp
         }
-        if(isAuthentified){
-            liveStreamApi.updateLiveStream(liveId: liveStreamId,record : false){(data,resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUpdated = true
-                    response = resp
-                }
-            }
-        }
+    
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertFalse(isUpdated)
         XCTAssertNotNil(response)
@@ -601,83 +340,53 @@ class LiveStreamTests: XCTestCase {
     
     
     //MARK: test Delete Live Stream Success
-    func testDeleteLiveStream_success(){
+    func testDeleteLiveStream_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let liveStreamId = "liWl49txMbBMJCJBTAXuIyT"
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
         var isDeleted = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.liveStreamApi!.create(name: "live"){(live, resp) in
+            self.liveStreamApi!.deleteLiveStream(liveStreamId: (live?.liveStreamId)!){ (deleted, resp) in
+                expectation.fulfill()
+                isDeleted = deleted
+                response = resp
             }
         }
-        
-        if(isAuthentified){
-            liveStreamApi.deleteLiveStream(liveStreamId: liveStreamId){ (deleted, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isDeleted = deleted
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isDeleted = deleted
-                    response = resp
-                }
-            }
-        }
+    
         waitForExpectations(timeout: 10, handler: nil)
         XCTAssertTrue(isDeleted)
         XCTAssertNil(response)
     }
     
     //MARK: test Delete Live Stream Error
-    func testDeleteLiveStream_error(){
+    func testDeleteLiveStream_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let liveStreamId = "li7IPfB3w1XEzOISfzeq1j8n"
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
         var isDeleted = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+    
+        self.liveStreamApi!.deleteLiveStream(liveStreamId: liveStreamId){ (deleted, resp) in
+            expectation.fulfill()
+            isDeleted = deleted
+            response = resp
         }
         
-        if(isAuthentified){
-            liveStreamApi.deleteLiveStream(liveStreamId: liveStreamId){ (deleted, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isDeleted = deleted
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isDeleted = deleted
-                    response = resp
-                }
-            }
-        }
         waitForExpectations(timeout: 10, handler: nil)
         XCTAssertFalse(isDeleted)
         XCTAssertNotNil(response)
     }
     
     //MARK: test Upload Thumbnail Live Stream Success
-    func testUploadThumbnail_success(){
+    func testUploadThumbnail_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
-        let liveStreamId = "liWl49txMbBMJCJBTAXuIyT"
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
         let filename = "foret.jpg"
         let bundle = Bundle(for: type(of: self))
         let filepath = bundle.path(forResource: "shopping-basket", ofType: "png")!
@@ -686,40 +395,27 @@ class LiveStreamTests: XCTestCase {
         let imagedata = testImage?.pngData()
         var isUploaded = false
         var response: Response?
-        
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+    
+        self.liveStreamApi!.create(name: "live"){(live, resp) in
+            self.liveStreamApi!.uploadImageThumbnail(liveStreamId: (live?.liveStreamId)!, url: url, filePath: filepath, fileName: filename, imageData: imagedata!){(uploaded, resp) in
+                self.deleteLiveStream(live: live)
+                isUploaded = uploaded
+                response = resp
+                expectation.fulfill()
             }
         }
         
-        if(isAuthentified){
-            liveStreamApi.uploadImageThumbnail(liveStreamId: liveStreamId, url: url, filePath: filepath, fileName: filename, imageData: imagedata!){(uploaded, resp) in
-                if uploaded{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }
-            }
-        }
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertTrue(isUploaded)
         XCTAssertNil(response)
     }
     
     //MARK: test Upload Thumbnail Live Stream Error
-    func testUploadThumbnail_error(){
+    func testUploadThumbnail_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let liveStreamId = "li4tTuqrImXBVrYi8XH5Oz"
-        var isAuthentified = false
-        var liveStreamApi: LiveStreamApi!
         let filename = "foret.jpg"
         let bundle = Bundle(for: type(of: self))
         let filepath = bundle.path(forResource: "shopping-basket", ofType: "png")!
@@ -729,102 +425,54 @@ class LiveStreamTests: XCTestCase {
         var isUploaded = false
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+        self.liveStreamApi!.uploadImageThumbnail(liveStreamId: liveStreamId, url: url, filePath: filepath, fileName: filename, imageData: imagedata!){(uploaded, resp) in
+            isUploaded = uploaded
+            response = resp
+            expectation.fulfill()
         }
         
-        if(isAuthentified){
-            liveStreamApi.uploadImageThumbnail(liveStreamId: liveStreamId, url: url, filePath: filepath, fileName: filename, imageData: imagedata!){(uploaded, resp) in
-                if uploaded{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }
-            }
-        }
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertFalse(isUploaded)
         XCTAssertNotNil(response)
     }
     
     //MARK: test Delete Thumbnail Live Stream Success
-    func testDeleteThumbnail_success(){
+    func testDeleteThumbnail_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isDeleted = false
-        var isAuthentified = false
-        let liveStreamId = "liWl49txMbBMJCJBTAXuIyT"
-        var liveStreamApi: LiveStreamApi!
 
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.liveStreamApi!.create(name: "live"){(live, resp) in
+            self.liveStreamApi!.deleteThumbnail(liveStreamId: (live?.liveStreamId)!){ (deleted, resp) in
+                self.deleteLiveStream(live: live)
+                response = resp
+                isDeleted = deleted
+                expectation.fulfill()
             }
         }
         
-        if isAuthentified{
-            liveStreamApi.deleteThumbnail(liveStreamId: liveStreamId){ (deleted, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
-                }else{
-                    expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
-                }
-            }
-        }
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertTrue(isDeleted)
         XCTAssertNil(response)
     }
     
     //MARK: test Delete Thumbnail Live Stream Error
-    func testDeleteThumbnail_error(){
+    func testDeleteThumbnail_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isDeleted = false
-        var isAuthentified = false
         let liveStreamId = "li4tTuqrImXBVrYi8XH5OT"
-        var liveStreamApi: LiveStreamApi!
 
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                liveStreamApi = self.authClient.liveStreamApi
-
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+        self.liveStreamApi!.deleteThumbnail(liveStreamId: liveStreamId){ (deleted, resp) in
+            response = resp
+            isDeleted = deleted
+            expectation.fulfill()
         }
         
-        if isAuthentified{
-            liveStreamApi.deleteThumbnail(liveStreamId: liveStreamId){ (deleted, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
-                }else{
-                    expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
-                }
-            }
-        }
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertFalse(isDeleted)
         XCTAssertNotNil(response)
