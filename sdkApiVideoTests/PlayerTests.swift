@@ -9,10 +9,16 @@ import Foundation
 import XCTest
 @testable import sdkApiVideo
 
-class PlayerTests: XCTestCase {
-    let authClient = Client()
+class PlayerTests: Common {
+    var playerApi: PlayerApi?
     
-    let player_success = Player(playerId: "1", shapeMargin: 10, shapeRadius: 3, shapeAspect: "flat", shapeBackgroundTop: "rgba(50, 50, 50, .7)", shapeBackgroundBottom: "rgba(50, 50, 50, .8)", text: "rgba(255, 255, 255, .95)", link: "rgba(255, 0, 0, .95)", linkHover: "rgba(255, 255, 255, .75)", linkActive: "rgba(255, 0, 0, .75)", trackPlayed: "rgba(255, 255, 255, .95)", trackUnplayed: "rgba(255, 255, 255, .1)", trackBackground: "rgba(0, 0, 0, 0)", backgroundTop: "rgba(72, 4, 45, 1)", backgroundBottom: "rgba(94, 95, 89, 1)", backgroundText: "rgba(255, 255, 255, .95)", enableApi: false, enableControls: false, forceAutoplay: true, hideTitle: true, forceLoop: false, assets: nil, language: "fr", createdAt: "", updatedAt: "")
+    override func setUp() {
+        super.setUp()
+        self.playerApi = self.authClient.playerApi
+    }
+    
+    
+    public static let player_success = Player(playerId: "1", shapeMargin: 10, shapeRadius: 3, shapeAspect: "flat", shapeBackgroundTop: "rgba(50, 50, 50, .7)", shapeBackgroundBottom: "rgba(50, 50, 50, .8)", text: "rgba(255, 255, 255, .95)", link: "rgba(255, 0, 0, .95)", linkHover: "rgba(255, 255, 255, .75)", linkActive: "rgba(255, 0, 0, .75)", trackPlayed: "rgba(255, 255, 255, .95)", trackUnplayed: "rgba(255, 255, 255, .1)", trackBackground: "rgba(0, 0, 0, 0)", backgroundTop: "rgba(72, 4, 45, 1)", backgroundBottom: "rgba(94, 95, 89, 1)", backgroundText: "rgba(255, 255, 255, .95)", enableApi: false, enableControls: false, forceAutoplay: true, hideTitle: true, forceLoop: false, assets: nil, language: "fr", createdAt: "", updatedAt: "")
     
     let player_error = Player(playerId: "1", shapeMargin: 10, shapeRadius: 3, shapeAspect: "flat", shapeBackgroundTop: "rgba(50, 50, 50, .7)", shapeBackgroundBottom: "rgba(50, 50, 50, .8)", text: "rgba(255, 255, 255, .95)", link: "rgba(255, 0, 0, .95)", linkHover: "rba(255, 255, 255, .75)", linkActive: "rgba(255, 0, 0, .75)", trackPlayed: "rgba(255, 255, 255, .95)", trackUnplayed: "rgba(255, 255, 255, .1)", trackBackground: "rgba(0, 0, 0, 0)", backgroundTop: "rgba(72, 4, 45, 1)", backgroundBottom: "rgba(94, 95, 89, 1)", backgroundText: "rgba(255, 255, 255, .95)", enableApi: false, enableControls: false, forceAutoplay: true, hideTitle: true, forceLoop: false, assets: nil, language: "fr", createdAt: "", updatedAt: "")
     
@@ -20,111 +26,63 @@ class PlayerTests: XCTestCase {
     
     let player_updated_error = Player(playerId: "jiforz", shapeMargin: 3, shapeRadius: 10, shapeAspect: "flat", shapeBackgroundTop: "rgba(50, 50, 50, .7)", shapeBackgroundBottom: "rgba(50, 50, 50, .8)", text: "rgba(255, 255, 255, .95)", link: "rgba(255, 0, 0, .95)", linkHover: "rgba(255, 255, 255, .75)", linkActive: "rgba(255, 0, 0, .75)", trackPlayed: "rgba(255, 255, 255, .95)", trackUnplayed: "rgba(255, 255, 255, .1)", trackBackground: "rgba(0, 0, 0, 0)", backgroundTop: "rgba(72, 4, 45, 1)", backgroundBottom: "rgba(94, 95, 89, 1)", backgroundText: "rgba(255, 255, 255, .95)", enableApi: false, enableControls: false, forceAutoplay: true, hideTitle: true, forceLoop: false, assets: nil, language: "fr", createdAt: "", updatedAt: "")
     
-    
     //MARK: test Create Player Success
-    func testCreatePlayer_Success(){
+    func testCreatePlayer_Success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
-        var isCreated = false
+        var player: Player?
         var response: Response?
-        var isAuthentified = false
-        var playerApi: PlayerApi!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+        self.playerApi!.createPlayer(player: PlayerTests.player_success){ (p, resp) in
+            print("CREATED => \(p?.playerId)")
+            response = resp
+            player = p
+            self.deletePlayer(player: player)
+            expectation.fulfill()
         }
-        
-        if(isAuthentified){
-            playerApi.createPlayer(player: self.player_success){ (created, resp) in
-                print("CREATED => \(created)")
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    response = resp
-                    isCreated = created
-                }else{
-                    expectation.fulfill()
-                    response = resp
-                    isCreated = created
-                }
-            }
-        }
+    
         waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertTrue(isCreated)
+        XCTAssertNotNil(player)
         XCTAssertNil(response)
     }
     
     //MARK: test Create Player Error (wrong value)
-    func testCreatePlayer_WrongPlayerValue(){
-        let expectation = self.expectation(description: "request should not succeed")
-        var isCreated = false
-        var response: Response?
-        var isAuthentified = false
-        var playerApi: PlayerApi!
+    func testCreatePlayer_WrongPlayerValue() throws {
+        try XCTSkipIf(getApiKey() == nil)
 
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+        let expectation = self.expectation(description: "request should not succeed")
+        var player: Player?
+        var response: Response?
+        
+        self.playerApi!.createPlayer(player: self.player_error){ (p, resp) in
+            print("CREATED => \(p?.playerId)")
+            player = p
+            response = resp
+            expectation.fulfill()
         }
         
-        if(isAuthentified){
-            playerApi.createPlayer(player: self.player_error){ (created, resp) in
-                print("CREATED => \(created)")
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isCreated = created
-                    response = resp
-                }
-            }
-        }
         waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertFalse(isCreated)
+        XCTAssertNil(player)
         XCTAssertNotNil(response?.statusCode)
         XCTAssertNotNil(response?.message)
         XCTAssertNotNil(response?.url)
     }
     
     //MARK: test Get Players Success
-    func testGetAllPlayers_Success(){
+    func testGetAllPlayers_Success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var myPlayers: [Player]?
         var response: Response?
-        var isAuthentified = false
-        var playerApi: PlayerApi!
-
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+        
+        self.playerApi!.getAllPlayers(){(players, resp) in
+            myPlayers = players
+            response = resp
+            expectation.fulfill()
         }
         
-        if(isAuthentified){
-            playerApi.getAllPlayers(){(players, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    myPlayers = players
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    myPlayers = players
-                    response = resp
-                }
-            }
-        }
         print("nb Players : \(myPlayers!.count)")
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertNotNil(myPlayers)
@@ -133,72 +91,21 @@ class PlayerTests: XCTestCase {
         
     }
     
-    //MARK: test Get Players Error
-    func testGetAllPlayers_WrongToken(){
-        let expectation = self.expectation(description: "request should succeed")
-        var myPlayers: [Player]?
-        var response: Response?
-        var isAuthentified = false
-        var playerApi: PlayerApi!
-
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        
-        if(isAuthentified){
-            playerApi.getAllPlayers(){(players, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    myPlayers = players
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    myPlayers = players
-                    response = resp
-                }
-            }
-        }
-        
-        waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertTrue(myPlayers!.count == 0, "le tableau doit etre vide")
-        XCTAssertNotNil(response?.statusCode)
-        XCTAssertNotNil(response?.message)
-        XCTAssertNotNil(response?.url)
-    }
     
     //MARK: test Get Players By Id Success
-    func testGetPlayerById_Success(){
+    func testGetPlayerById_Success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var myPlayer: Player?
         var response: Response?
-        let playerId = "pt3fePLEGw8xS6NF5x5AyuVB"
-        var isAuthentified = false
-        var playerApi: PlayerApi!
-
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        if(isAuthentified){
-            playerApi.getPlayerById(playerId: playerId){(player, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    myPlayer = player
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    myPlayer = player
-                    response = resp
-                }
+        
+        self.createPlayer(){ (p) in
+            self.playerApi!.getPlayerById(playerId: (p.playerId)!){(player, resp) in
+                myPlayer = player
+                response = resp
+                self.deletePlayer(player: player)
+                expectation.fulfill()
             }
         }
         
@@ -208,36 +115,19 @@ class PlayerTests: XCTestCase {
     }
     
     //MARK: test Get Players By Id Error
-    func testGetPlayerById_WrongId(){
+    func testGetPlayerById_WrongId() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
     // wrong id
         let expectation = self.expectation(description: "request should succeed")
         var myPlayer: Player?
         var response: Response?
         let playerId = "pl40idM2poDZnuHQjiodezXH0X8f8C"
-        var isAuthentified = false
-        var playerApi: PlayerApi!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        
-        if(isAuthentified){
-            playerApi.getPlayerById(playerId: playerId){(player, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    myPlayer = player
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    myPlayer = player
-                    response = resp
-                }
-            }
+        self.playerApi!.getPlayerById(playerId: playerId){(player, resp) in
+            myPlayer = player
+            response = resp
+            expectation.fulfill()
         }
         
         waitForExpectations(timeout: 100, handler: nil)
@@ -247,32 +137,21 @@ class PlayerTests: XCTestCase {
     }
     
     //MARK: test Update Player Success
-    func testUpdatePlayer_Success(){
+    func testUpdatePlayer_Success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isUpdated = false
-        var isAuthentified = false
-        var playerApi: PlayerApi!
-        
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        if(isAuthentified){
-            playerApi.updatePlayer(player: self.player_updated_success){ (updated, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    response = resp
-                    isUpdated = updated
-                }else{
-                    expectation.fulfill()
-                    response = resp
-                    isUpdated = updated
-                }
+    
+        self.createPlayer(){ (p) in
+            var update_payload = self.player_updated_success;
+            update_payload.playerId = p.playerId
+            self.playerApi!.updatePlayer(player: update_payload){ (updated, resp) in
+                response = resp
+                isUpdated = updated
+                self.deletePlayer(player: p)
+                expectation.fulfill()
             }
         }
         
@@ -282,119 +161,73 @@ class PlayerTests: XCTestCase {
     }
     
     //MARK: test Update Player Error (wrong id)
-    func testUpdatePlayer_Error(){
+    func testUpdatePlayer_Error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isUpdated = false
-        var isAuthentified = false
-        var playerApi: PlayerApi!
-        
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+
+        self.playerApi!.updatePlayer(player: self.player_updated_error){ (updated, resp) in
+            response = resp
+            isUpdated = updated
+            expectation.fulfill()
         }
-        if(isAuthentified){
-            playerApi.updatePlayer(player: self.player_updated_error){ (updated, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    response = resp
-                    isUpdated = updated
-                }else{
-                    expectation.fulfill()
-                    response = resp
-                    isUpdated = updated
-                }
-            }
-        }
+    
         
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertFalse(isUpdated)
         print("response : \(String(describing: response))")
         XCTAssertNotNil(response)
     }
+    
     //MARK: Upload Logo
-    func testUploadLogo_success(){
+    func testUploadLogo_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isUploaded = false
-        var isAuthentified = false
-        let playerId = "pt3fePLEGw8xS6NF5x5AyuVB"
         let url = URL(string: "https://google.com")
-        var playerApi: PlayerApi!
         let path = Bundle(for: type(of: self)).path(forResource: "shopping-basket", ofType: "png")
         let testImage = UIImage(named: "shopping-basket", in: Bundle(for: type(of: self)), compatibleWith: nil)
         let imagedata = testImage?.pngData()
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        
+        self.createPlayer(){ (p) in
+            self.playerApi!.uploadLogo(playerId: (p.playerId)!, url: url!, filePath: path!, fileName: "shopping-basket.png", imageData: imagedata!){ (uploaded, resp) in
+                isUploaded = uploaded
+                response = resp
+                self.deletePlayer(player: p)
+                expectation.fulfill()
             }
         }
-        if(isAuthentified){
-            playerApi.uploadLogo(playerId: playerId, url: url!, filePath: path!, fileName: "shopping-basket.png", imageData: imagedata!){ (uploaded, resp) in
-                if uploaded{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }
-
-
-            }
-        }
+    
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertTrue(isUploaded)
         print("response : \(String(describing: response))")
         XCTAssertNil(response)
-        
     }
+    
     //MARK: test Upload Logo Error image too big
-    func testUploadLogo_error(){
+    func testUploadLogo_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isUploaded = false
-        var isAuthentified = false
         let playerId = "pl66GVxFXe0iG80MsxuY8mJy"
         let url = URL(string: "https://google.com")
-        var playerApi: PlayerApi!
         let path = Bundle(for: type(of: self)).path(forResource: "shopping-basket", ofType: "png")
         let testImage = UIImage(named: "shopping-basket", in: Bundle(for: type(of: self)), compatibleWith: nil)
         let imagedata = testImage?.pngData()
+
+        self.playerApi!.uploadLogo(playerId: playerId, url: url!, filePath: path!, fileName: "shopping-basket.png", imageData: imagedata!){ (uploaded, resp) in
+            isUploaded = uploaded
+            response = resp
+            expectation.fulfill()
+        }
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        if(isAuthentified){
-            playerApi.uploadLogo(playerId: playerId, url: url!, filePath: path!, fileName: "shopping-basket.png", imageData: imagedata!){ (uploaded, resp) in
-                if uploaded{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }
-
-
-            }
-        }
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertFalse(isUploaded)
         print("response : \(String(describing: response))")
@@ -404,36 +237,22 @@ class PlayerTests: XCTestCase {
     
     
     //MARK:test Delete Player Success
-    func testDeletePlayer_success(){
+    func testDeletePlayer_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isDeleted = false
-        var isAuthentified = false
-        let playerId = "pt63ti5Au4eWLeXfSufQl8fw"
-        var playerApi: PlayerApi!
+    
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        self.createPlayer(){ (p) in
+            self.playerApi!.deletePlayer(playerId: (p.playerId)!){ (deleted, resp) in
+                response = resp
+                isDeleted = deleted
+                expectation.fulfill()
             }
         }
         
-        if isAuthentified{
-            playerApi.deletePlayer(playerId: playerId){ (deleted, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
-                }else{
-                    expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
-                }
-            }
-        }
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertTrue(isDeleted)
         print("response : \(String(describing: response))")
@@ -441,36 +260,20 @@ class PlayerTests: XCTestCase {
     }
     
     //MARK:test Delete Player Error (wrong id)
-    func testDeletePlayer_error(){
+    func testDeletePlayer_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isDeleted = false
-        var isAuthentified = false
         let playerId = "plV9hkYZaGJMJrAfN1IrHIOEZIODMG"
-        var playerApi: PlayerApi!
-
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                playerApi = self.authClient.playerApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
         
-        if isAuthentified{
-            playerApi.deletePlayer(playerId: playerId){ (deleted, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
-                }else{
-                    expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
-                }
-            }
+        self.playerApi!.deletePlayer(playerId: playerId){ (deleted, resp) in
+            response = resp
+            isDeleted = deleted
+            expectation.fulfill()
         }
+    
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertFalse(isDeleted)
         print("response : \(String(describing: response))")

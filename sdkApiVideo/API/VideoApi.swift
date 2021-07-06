@@ -14,6 +14,8 @@ public class VideoApi{
         case server
     }
     
+    private var chunkSize: Int = ((1024 * 1024) * 30) // MB
+    
     private var tokenType: String!
     private var key: String!
     private var environnement: String!
@@ -29,30 +31,26 @@ public class VideoApi{
         self.pagination = Pagination(tokenType: tokenType, key: key)
     }
     
+    public func setChunkSize(size: Int) {
+        self.chunkSize = size
+    }
+    
+    public func getChunkSize() -> Int {
+        return self.chunkSize
+    }
+    
     
     //MARK: Init video
-    public func initVideo(title: String, description: String, completion: @escaping (String, Response?) -> ()){
+    public func initVideo(title: String, description: String, completion: @escaping (Video?, Response?) -> ()){
         let apiPath = self.environnement + ApiPaths.videos.rawValue
         let body = ["title": title, "description": description] as Dictionary<String, String>
         
         var request = RequestsBuilder().postUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key)
         request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
         
-        var resp: Response?
-        var uri = ""
-        
         let session = RequestsBuilder().urlSessionBuilder()
         TasksExecutor().execute(session: session, request: request){ (data, response) in
-            if(data != nil){
-                let json = try? JSONSerialization.jsonObject(with: data!) as? Dictionary<String, AnyObject>
-
-                let source = json?["source"] as! Dictionary<String, AnyObject>
-                uri = source["uri"] as! String
-                completion(uri, resp)
-            }else{
-                resp = response
-                completion(uri, resp)
-            }
+            completion(data != nil ? try? self.decoder.decode(Video.self, from: data!) : nil, response)
         }
     }
     
@@ -60,7 +58,7 @@ public class VideoApi{
     //MARK: Init and Upload video
     public func create(title: String, description: String, fileName: String, filePath: String, url: URL, completion: @escaping (Video?, Response?) -> ()){
         var uriVideo: String?
-        initVideo(title: title, description: description){ (uri, resp) in
+        initVideo(title: title, description: description){ (v, resp) in
             //if Error
             if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
                 //return videoCreated = false
@@ -70,14 +68,14 @@ public class VideoApi{
             // if video is created
             else{
                 // if no error with the video uri
-                if(uri != "") {
+                if(v != nil) {
                     // get data lenght to upload a big or a small file
                     let data = try? Data(contentsOf: url)
                     let dataLen = data!.count
-                    uriVideo = uri
+                    uriVideo = v?.sourceVideo?.uri
                     // if data lenght < 30mb upload small file else upload big file
-                    if(dataLen < ((1024 * 1024) * 30)){
-                        self.uploadSmallVideoFile(videoUri: uri, fileName: fileName, filePath: filePath, url: url){ (video, resp) in
+                    if(dataLen < self.chunkSize){
+                        self.uploadSmallVideoFile(videoUri: uriVideo!, fileName: fileName, filePath: filePath, url: url){ (video, resp) in
                             completion(video, resp)
                         }
                     }else{
@@ -118,7 +116,6 @@ public class VideoApi{
     
     //MARK: Upload Large video by stream (WIP)
     public func uploadLargeStream(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Video?, Response?) -> ()){
-        let chunkSize: Int = ((1024 * 1024) * 30) // MB
         let apiPath = self.environnement + videoUri
         let data = try? Data(contentsOf: url)
         let fileSize = data!.count
@@ -149,8 +146,8 @@ public class VideoApi{
             TasksExecutor().execute(session: session, request: urlRequest){(data, response) in
                 if(data != nil){
                     readBytes = chunkEnd
-                    semaphore.signal()
                     video = try? self.decoder.decode(Video.self, from: data!)
+                    semaphore.signal()
                 }else{
                     completion(nil, response)
                 }
@@ -219,7 +216,6 @@ public class VideoApi{
         var datas: [[String:String]] = []
         let data = try? Data(contentsOf: url)
         let dataLen = data!.count
-        let chunkSize = ((1024 * 1000) * 30) // MB
         let fullChunks = Int(dataLen / chunkSize)
         let totalChunks = fullChunks + (dataLen % 1024 != 0 ? 1 : 0)
         var initialChunk = 0
@@ -413,19 +409,14 @@ public class VideoApi{
         let apiPath = self.environnement + ApiPaths.videos.rawValue + "/" + videoId + ApiPaths.status.rawValue
         
         var status: Status?
-        var resp: Response?
         
         let request = RequestsBuilder().getUrlRequestBuilder(apiPath: apiPath,tokenType: self.tokenType, key: self.key)
         let session = RequestsBuilder().urlSessionBuilder()
         TasksExecutor().execute(session: session, request: request){ (data, response) in
             if(data != nil){
                 status = try? self.decoder.decode(Status.self, from: data!)
-                completion(status, resp)
             }
-            else{
-                resp = response
-                completion(status, resp)
-            }
+            completion(status, response)
         }
     }
     

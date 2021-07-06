@@ -25,7 +25,7 @@ public class PlayerApi{
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     //MARK: Create Player
-    public func createPlayer(player: Player, completion: @escaping (Bool, Response?) ->()){
+    public func createPlayer(player: Player, completion: @escaping (Player?, Response?) ->()){
         let apiPath = self.environnement + ApiPaths.players.rawValue
         let body = [
             "shapeMargin" : player.shapeMargin!,
@@ -55,7 +55,7 @@ public class PlayerApi{
         let session = RequestsBuilder().urlSessionBuilder()
         
         TasksExecutor().execute(session: session, request: request){(data, response) in
-            completion(data != nil, response)
+            completion(data != nil ? try? self.decoder.decode(Player.self, from: data!) : nil, response)
         }
     }
     

@@ -9,44 +9,35 @@
 import XCTest
 @testable import sdkApiVideo
 
-class ChapterTests: XCTestCase {
-    let authClient = Client()
+class ChapterTests: Common {
+    var chapterApi: ChapterApi?
+    
+    override func setUp() {
+        super.setUp()
+        self.chapterApi = self.authClient.chapterApi
+    }
     
     //MARK: upload chapter
-    func testUploadChapter_success(){
+    func testUploadChapter_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
-        var isAuthentified = false
-        var chapterApi: ChapterApi!
         var isUploaded = false
         var response: Response?
         let filename = "my_captions.vtt"
         let bundle = Bundle(for: type(of: self))
         let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
         let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
+    
+        self.createVideo() { (v) in
+            self.chapterApi!.uploadChapter(videoId: v.videoId!, url: url, filePath: filepath, fileName: filename, language: "fr"){ (uploaded, resp) in
+                isUploaded = uploaded
+                response = resp
+                self.deleteVideo(video: v)
+                expectation.fulfill()
+            }
+        }
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                chapterApi = self.authClient.chapterApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        if(isAuthentified){
-            chapterApi.uploadChapter(videoId: videoId, url: url, filePath: filepath, fileName: filename, language: "fr"){ (uploaded, resp) in
-                if uploaded{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }
-                
-            }
-        }
         
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertTrue(isUploaded)
@@ -54,11 +45,11 @@ class ChapterTests: XCTestCase {
     }
     
     //MARK: upload chapter error
-    func testUploadChapter_error(){
+    func testUploadChapter_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let videoId = "vi4TR6kBRQx7dnaCR7DcQ"
-        var isAuthentified = false
-        var chapterApi: ChapterApi!
         var isUploaded = false
         var response: Response?
         let filename = "my_captions.vtt"
@@ -66,28 +57,12 @@ class ChapterTests: XCTestCase {
         let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
         let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                chapterApi = self.authClient.chapterApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+        self.chapterApi!.uploadChapter(videoId: videoId, url: url, filePath: filepath, fileName: filename, language: "fr"){ (uploaded, resp) in
+            isUploaded = uploaded
+            response = resp
+            expectation.fulfill()
         }
-        if(isAuthentified){
-            chapterApi.uploadChapter(videoId: videoId, url: url, filePath: filepath, fileName: filename, language: "fr"){ (uploaded, resp) in
-                if uploaded{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }
-                
-            }
-        }
+        
         
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertFalse(isUploaded)
@@ -95,145 +70,98 @@ class ChapterTests: XCTestCase {
     }
     
     //MARK: get chapter by id
-    func testgetChapterById_success(){
+    func testgetChapterById_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
-        var isAuthentified = false
-        var chapterApi: ChapterApi!
         var chapter: Chapter?
         var response: Response?
+        let filename = "my_captions.vtt"
+        let bundle = Bundle(for: type(of: self))
+        let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
+        let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                chapterApi = self.authClient.chapterApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        
-        if(isAuthentified){
-            chapterApi.getChapter(videoId: videoId, language: "fr"){ (chap, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
+        self.createVideo() { (v) in
+            self.chapterApi!.uploadChapter(videoId: v.videoId!, url: url, filePath: filepath, fileName: filename, language: "fr"){ (uploaded, resp) in
+                self.chapterApi!.getChapter(videoId: v.videoId!, language: "fr"){ (chap, resp2) in
                     chapter = chap
-                    response = resp
-                }else{
+                    response = resp2
+                    self.deleteVideo(video: v)
                     expectation.fulfill()
-                    chapter = chap
-                    response = resp
                 }
             }
         }
+        
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertNotNil(chapter)
         XCTAssertNil(response)
     }
     
     //MARK: get chapter by id
-    func testgetChapterById_error(){
+    func testgetChapterById_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         let videoId = "vi4TR6kBRQx7dnaCR7DcQtqX"
-        var isAuthentified = false
-        var chapterApi: ChapterApi!
         var chapter: Chapter?
         var response: Response?
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                chapterApi = self.authClient.chapterApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
         
-        if(isAuthentified){
-            chapterApi.getChapter(videoId: videoId, language: "en"){ (chap, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    chapter = chap
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    chapter = chap
-                    response = resp
-                }
-            }
+        self.chapterApi!.getChapter(videoId: videoId, language: "en"){ (chap, resp) in
+            chapter = chap
+            response = resp
+            expectation.fulfill()
         }
+
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertNil(chapter)
         XCTAssertNotNil(response)
     }
     
     //MARK: get all chapters success
-    func testGetAllChapter_success(){
+    func testGetAllChapter_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var myChapters: [Chapter]?
         var response: Response?
-        var isAuthentified = false
-        var chapterApi: ChapterApi!
-
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                chapterApi = self.authClient.chapterApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
+        let filename = "my_captions.vtt"
+        let bundle = Bundle(for: type(of: self))
+        let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
+        let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
+        
+        self.createVideo() { (v) in
+            self.chapterApi!.uploadChapter(videoId: v.videoId!, url: url, filePath: filepath, fileName: filename, language: "fr"){ (uploaded, resp) in
+                self.chapterApi!.getAllChapters(videoId: v.videoId!){(chapters, resp2) in
+                    myChapters = chapters
+                    response = resp2
+                    self.deleteVideo(video: v)
+                    expectation.fulfill()
+                }
             }
         }
         
-        if isAuthentified{
-            chapterApi.getAllChapters(videoId: videoId){(chapters, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    myChapters = chapters
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    myChapters = chapters
-                    response = resp
-                }
-                
-            }
-        }
-        print("nb chapters : \(myChapters!.count)")
         waitForExpectations(timeout: 100, handler: nil)
+        print("nb chapters : \(myChapters!.count)")
         XCTAssertNotNil(myChapters)
         XCTAssertNil(response)
         XCTAssertTrue(myChapters!.count >= 0, "the list must be greater than 0 and must not be null")
     }
     
     //MARK: get all chapters Error
-    func testGetAllChapter_error(){
+    func testGetAllChapter_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should not succeed")
         let videoId = "vi5bk2odFpB18LY3G62y8Ly"
         var myChapters: [Chapter]?
         var response: Response?
-        var isAuthentified = false
-        var chapterApi: ChapterApi!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, resp) in
-            if authentified{
-                isAuthentified = authentified
-                chapterApi = self.authClient.chapterApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        if(isAuthentified){
-            chapterApi.getAllChapters(videoId: videoId){(chapters, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    myChapters = chapters
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    myChapters = chapters
-                    response = resp
-                }
-            }
+        
+        self.chapterApi!.getAllChapters(videoId: videoId){(chapters, resp) in
+            myChapters = chapters
+            response = resp
+            expectation.fulfill()
         }
         
         waitForExpectations(timeout: 100, handler: nil)
@@ -242,34 +170,25 @@ class ChapterTests: XCTestCase {
     }
     
     //MARK: delete chapter Success
-    func testDeleteChapter_success(){
+    func testDeleteChapter_success() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isDeleted = false
-        var isAuthentified = false
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
-        var chapterApi: ChapterApi!
-        
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                chapterApi = self.authClient.chapterApi
+        let filename = "my_captions.vtt"
+        let bundle = Bundle(for: type(of: self))
+        let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
+        let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
 
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
         
-        if isAuthentified{
-            chapterApi.deleteChapter(videoId: videoId, language: "fr"){ (deleted, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
+        self.createVideo() { (v) in
+            self.chapterApi!.uploadChapter(videoId: v.videoId!, url: url, filePath: filepath, fileName: filename, language: "fr"){ (uploaded, resp) in
+                self.chapterApi!.deleteChapter(videoId: v.videoId!, language: "fr"){ (deleted, resp) in
                     response = resp
                     isDeleted = deleted
-                }else{
+                    self.deleteVideo(video: v)
                     expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
                 }
             }
         }
@@ -280,37 +199,20 @@ class ChapterTests: XCTestCase {
     }
     
     //MARK: delete chapter Error
-    func testDeleteChapter_error(){
+    func testDeleteChapter_error() throws {
+        try XCTSkipIf(getApiKey() == nil)
+
         let expectation = self.expectation(description: "request should not succeed")
         var response: Response?
         var isDeleted = false
-        var isAuthentified = false
         let videoId = "vi58NQXuw3x8Q90gehtSCdue"
-        var chapterApi: ChapterApi!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                chapterApi = self.authClient.chapterApi
-
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
+        self.chapterApi!.deleteChapter(videoId: videoId, language: "en"){ (deleted, resp) in
+            response = resp
+            isDeleted = deleted
+            expectation.fulfill()
         }
         
-        if isAuthentified{
-            chapterApi.deleteChapter(videoId: videoId, language: "en"){ (deleted, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
-                }else{
-                    expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
-                }
-            }
-        }
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertFalse(isDeleted)
         XCTAssertNotNil(response)

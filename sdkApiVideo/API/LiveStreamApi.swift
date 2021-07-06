@@ -35,7 +35,7 @@ public class LiveStreamApi{
     }
     
     //MARK: Create LiveStream
-    public func create(name: String, record: Bool?, playerId: String?, isPublic: Bool?, completion: @escaping(Bool, Response?)->()){
+    public func create(name: String, record: Bool?, playerId: String?, isPublic: Bool?, completion: @escaping(LiveStream?, Response?)->()){
         let apiPath = self.environnement  + ApiPaths.liveStream.rawValue
         var body = [
             "name" : name,
@@ -54,26 +54,26 @@ public class LiveStreamApi{
         
         let session = RequestsBuilder().urlSessionBuilder()
         TasksExecutor().execute(session: session, request: request){(data, response) in
-            completion(data != nil,response)
+            completion(data != nil ? try! self.decoder.decode(LiveStream.self, from: data!) : nil,response)
         }
     }
     //MARK: Create Basic LiveStream
     // (no player specified)
-    public func create(name: String, record: Bool, completion: @escaping(Bool, Response?)->()){
+    public func create(name: String, record: Bool, completion: @escaping(LiveStream?, Response?)->()){
         create(name: name, record: record, playerId: nil, isPublic: nil){(data, response) in
             completion(data, response)
         }
     }
     //MARK: Create Basic LiveStream
     // (nothing specified)
-    public func create(name: String, completion: @escaping(Bool, Response?)->()){
+    public func create(name: String, completion: @escaping(LiveStream?, Response?)->()){
         create(name: name, record: nil, playerId: nil, isPublic: nil){(data, response) in
             completion(data, response)
         }
     }
     //MARK: Create Basic LiveStream
     // (no record specified)
-    public func create(name: String, playerId: String, completion: @escaping(Bool, Response?)->()){
+    public func create(name: String, playerId: String, completion: @escaping(LiveStream?, Response?)->()){
         create(name: name, record: nil, playerId: playerId, isPublic: nil){(data, response) in
             completion(data, response)
         }
@@ -81,28 +81,28 @@ public class LiveStreamApi{
     
     //MARK: Create Basic Private LiveStream
     // (nothing specified)
-    public func createPrivate(name: String, completion: @escaping(Bool, Response?)->()){
+    public func createPrivate(name: String, completion: @escaping(LiveStream?, Response?)->()){
         create(name: name, record: nil, playerId: nil, isPublic: false){(data, response) in
             completion(data, response)
         }
     }
     //MARK: Create Basic Private LiveStream
     // (no player specified)
-    public func createPrivate(name: String, record: Bool, completion: @escaping(Bool, Response?)->()){
+    public func createPrivate(name: String, record: Bool, completion: @escaping(LiveStream?, Response?)->()){
         create(name: name, record: record, playerId: nil, isPublic: false){(data, response) in
             completion(data, response)
         }
     }
     //MARK: Create Basic Private LiveStream
     // (no player specified)
-    public func createPrivate(name: String, playerId: String, completion: @escaping(Bool, Response?)->()){
+    public func createPrivate(name: String, playerId: String, completion: @escaping(LiveStream?, Response?)->()){
         create(name: name, record: nil, playerId: playerId, isPublic: false){(data, response) in
             completion(data, response)
         }
     }
     //MARK: Create Basic Private LiveStream
     // (no player specified)
-    public func createPrivate(name: String,record: Bool, playerId: String, completion: @escaping(Bool, Response?)->()){
+    public func createPrivate(name: String,record: Bool, playerId: String, completion: @escaping(LiveStream?, Response?)->()){
         create(name: name, record: record, playerId: playerId, isPublic: false){(data, response) in
             completion(data, response)
         }

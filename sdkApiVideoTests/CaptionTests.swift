@@ -9,15 +9,18 @@
 import XCTest
 @testable import sdkApiVideo
 
-class CaptionTests: XCTestCase {
-    let authClient = Client()
+class CaptionTests: Common {
+    var captionApi: CaptionApi?
+    
+    override func setUp() {
+        super.setUp()
+        self.captionApi = self.authClient.captionApi
+    }
 
     //MARK: Upload caption
-    func testUploadCaption_success(){
+    func testUploadCaption_success() throws {
+        try XCTSkipIf(getApiKey() == nil)        
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
-        var isAuthentified = false
-        var captionApi: CaptionApi!
         var isUploaded = false
         var response: Response?
         let filename = "my_captions.vtt"
@@ -25,26 +28,12 @@ class CaptionTests: XCTestCase {
         let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
         let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                captionApi = self.authClient.captionApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        if(isAuthentified){
-            captionApi.upload(videoId: videoId, url: url, filePath: filepath, fileName: filename, language: "en"){ (uploaded, resp) in
-                if uploaded{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }else{
-                    expectation.fulfill()
-                    isUploaded = uploaded
-                    response = resp
-                }
-                
+        self.createVideo() { (v) in
+            self.captionApi!.upload(videoId: v.videoId!, url: url, filePath: filepath, fileName: filename, language: "en"){ (uploaded, resp) in
+                isUploaded = uploaded
+                response = resp
+                self.deleteVideo(video: v)
+                expectation.fulfill()
             }
         }
         
@@ -55,110 +44,82 @@ class CaptionTests: XCTestCase {
     }
     
     //MARK: get caption by id
-    func testgetCaptionById_success(){
+    func testgetCaptionById_success() throws {
+        try XCTSkipIf(getApiKey() == nil)        
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
-        var isAuthentified = false
-        var captionApi: CaptionApi!
         var caption: Caption?
         var response: Response?
+        let filename = "my_captions.vtt"
+        let bundle = Bundle(for: type(of: self))
+        let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
+        let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                captionApi = self.authClient.captionApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        
-        if(isAuthentified){
-            captionApi.getCaption(videoId: videoId, language: "en"){ (cap, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
+        self.createVideo() { (v) in
+            self.captionApi!.upload(videoId: v.videoId!, url: url, filePath: filepath, fileName: filename, language: "en"){ (uploaded, resp) in
+                self.captionApi!.getCaption(videoId: v.videoId!, language: "en"){ (cap, resp2) in
                     caption = cap
-                    response = resp
-                }else{
+                    response = resp2
+                    self.deleteVideo(video: v)
                     expectation.fulfill()
-                    caption = cap
-                    response = resp
                 }
             }
         }
+
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertNotNil(caption)
         XCTAssertNil(response)
     }
     
     //MARK: get all captions
-    func testGetAllCaption(){
+    func testGetAllCaption() throws {
+        try XCTSkipIf(getApiKey() == nil)        
         let expectation = self.expectation(description: "request should succeed")
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var myCaptions: [Caption]?
         var response: Response?
-        var isAuthentified = false
-        var captionApi: CaptionApi!
+        let filename = "my_captions.vtt"
+        let bundle = Bundle(for: type(of: self))
+        let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
+        let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                captionApi = self.authClient.captionApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
         
-        if isAuthentified{
-            captionApi.getAllCaptions(videoId: videoId){(captions, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
+        self.createVideo() { (v) in
+            self.captionApi!.upload(videoId: v.videoId!, url: url, filePath: filepath, fileName: filename, language: "en"){ (uploaded, resp) in
+                self.captionApi!.getAllCaptions(videoId: v.videoId!){(captions, resp2) in
                     myCaptions = captions
-                    response = resp
-                }else{
+                    response = resp2
+                    self.deleteVideo(video: v)
                     expectation.fulfill()
-                    myCaptions = captions
-                    response = resp
                 }
-                
             }
         }
-        print("nb captions : \(myCaptions!.count)")
+        
         waitForExpectations(timeout: 100, handler: nil)
+        print("nb captions : \(myCaptions!.count)")
         XCTAssertNotNil(myCaptions)
         XCTAssertNil(response)
         XCTAssertTrue(myCaptions!.count >= 0, "the list must be greater than 0 and must not be null")
     }
     
     //MARK: Update default caption
-    func testUpdateDefaultCaption(){
+    func testUpdateDefaultCaption() throws {
+        try XCTSkipIf(getApiKey() == nil)        
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
         var isUpdated = false
-        var isAuthentified = false
-        var captionApi: CaptionApi!
+        let filename = "my_captions.vtt"
+        let bundle = Bundle(for: type(of: self))
+        let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
+        let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                captionApi = self.authClient.captionApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        if(isAuthentified){
-            captionApi.updateDefaultValue(videoId: videoId, language: "en", isDefault: false){ (updated, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
+        self.createVideo() { (v) in
+            self.captionApi!.upload(videoId: v.videoId!, url: url, filePath: filepath, fileName: filename, language: "en"){ (uploaded, resp) in
+                self.captionApi!.updateDefaultValue(videoId: v.videoId!, language: "en", isDefault: false){ (updated, resp) in
                     response = resp
                     isUpdated = updated
-                }else{
+                    self.deleteVideo(video: v)
                     expectation.fulfill()
-                    response = resp
-                    isUpdated = updated
                 }
             }
-
         }
         
         waitForExpectations(timeout: 100, handler: nil)
@@ -167,36 +128,27 @@ class CaptionTests: XCTestCase {
     }
     
     //MARK: delete caption
-    func testDeleteCaption(){
+    func testDeleteCaption() throws {
+        try XCTSkipIf(getApiKey() == nil)        
         let expectation = self.expectation(description: "request should succeed")
         var response: Response?
         var isDeleted = false
-        var isAuthentified = false
-        let videoId = "vi58NQXuw3x8Q90gehtSCdue"
-        var captionApi: CaptionApi!
+        let filename = "my_captions.vtt"
+        let bundle = Bundle(for: type(of: self))
+        let filepath = bundle.path(forResource: "my_captions", ofType: "vtt")!
+        let url = bundle.url(forResource: "my_captions", withExtension: "vtt")!
         
-        self.authClient.createSandbox(key: "USE_YOUR_SANDBOX_API_KEY"){ (authentified, response) in
-            if authentified{
-                isAuthentified = authentified
-                captionApi = self.authClient.captionApi
-            }else{
-                print("authentified status => \((response?.statusCode)!) : \((response?.message)!)")
-            }
-        }
-        
-        if isAuthentified{
-            captionApi.deleteCaption(videoId: videoId, language: "en"){ (deleted, resp) in
-                if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
-                    expectation.fulfill()
+        self.createVideo() { (v) in
+            self.captionApi!.upload(videoId: v.videoId!, url: url, filePath: filepath, fileName: filename, language: "en"){ (uploaded, resp) in
+                self.captionApi!.deleteCaption(videoId: v.videoId!, language: "en"){ (deleted, resp) in
                     response = resp
                     isDeleted = deleted
-                }else{
+                    self.deleteVideo(video: v)
                     expectation.fulfill()
-                    response = resp
-                    isDeleted = deleted
                 }
             }
         }
+
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertTrue(isDeleted)
         print("response : \(String(describing: response))")
