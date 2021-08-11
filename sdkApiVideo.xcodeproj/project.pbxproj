@@ -21,7 +21,6 @@
 		7AA0059B23422DF9000A60DE /* sdkApiVideo.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AA0058D23422DF6000A60DE /* sdkApiVideo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C702352B23D6EF03004882F3 /* AnalyticsVideoApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = C702352A23D6EF03004882F3 /* AnalyticsVideoApi.swift */; };
 		C702352D23D6F4F0004882F3 /* AnalyticsVideoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C702352C23D6F4F0004882F3 /* AnalyticsVideoTests.swift */; };
-		C711421525C40F9E00F99504 /* MultipartUploadInputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = C711421425C40F9E00F99504 /* MultipartUploadInputStream.swift */; };
 		C71CB38625D5A30300257776 /* RequestsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71CB38525D5A30300257776 /* RequestsBuilder.swift */; };
 		C71CB38A25D5A47000257776 /* TasksExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71CB38925D5A47000257776 /* TasksExecutor.swift */; };
 		C73B54B923CCC1B00066781F /* AnalyticClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73B54B823CCC1B00066781F /* AnalyticClient.swift */; };
@@ -147,7 +146,6 @@
 		C70342E4241648EF007ED037 /* xcschememanagement.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = xcschememanagement.plist; sourceTree = "<group>"; };
 		C70342E7241648EF007ED037 /* sdkApiVideo.xcscheme */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = sdkApiVideo.xcscheme; sourceTree = "<group>"; };
 		C70342E8241648EF007ED037 /* sdkApiVideoTests.xcscheme */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = sdkApiVideoTests.xcscheme; sourceTree = "<group>"; };
-		C711421425C40F9E00F99504 /* MultipartUploadInputStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipartUploadInputStream.swift; sourceTree = "<group>"; };
 		C715ECF923574B4F00FDAC93 /* sdkApiVideo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = sdkApiVideo.xcodeproj; sourceTree = "<group>"; };
 		C71CB38525D5A30300257776 /* RequestsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestsBuilder.swift; sourceTree = "<group>"; };
 		C71CB38925D5A47000257776 /* TasksExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksExecutor.swift; sourceTree = "<group>"; };
@@ -264,7 +262,6 @@
 				C7E352EE23DEDAD300E14C28 /* Pagination.swift */,
 				C7E352F223DF178200E14C28 /* CaptionApi.swift */,
 				C7600A2323E06CE700049EC0 /* ChapterApi.swift */,
-				C711421425C40F9E00F99504 /* MultipartUploadInputStream.swift */,
 				C71CB38525D5A30300257776 /* RequestsBuilder.swift */,
 				C71CB38925D5A47000257776 /* TasksExecutor.swift */,
 			);
@@ -749,7 +746,6 @@
 				C7DBE17A23560774009F2F9B /* SourceVideo.swift in Sources */,
 				C702352B23D6EF03004882F3 /* AnalyticsVideoApi.swift in Sources */,
 				C73B54BD23CCC3180066781F /* AnalyticDevice.swift in Sources */,
-				C711421525C40F9E00F99504 /* MultipartUploadInputStream.swift in Sources */,
 				C73B54C523CCC4790066781F /* AnalyticOs.swift in Sources */,
 				7A9AAEF72354BD26001E4EDE /* VideoApi.swift in Sources */,
 				C7DBE17823560473009F2F9B /* Assets.swift in Sources */,

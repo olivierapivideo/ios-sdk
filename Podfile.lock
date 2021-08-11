@@ -2,20 +2,24 @@ PODS:
   - HaishinKit (1.0.13):
     - Logboard (~> 2.1.3)
   - Logboard (2.1.3)
+  - VideoUploaderIos (0.0.1)
 
 DEPENDENCIES:
   - HaishinKit (~> 1.0.4)
   - Logboard (~> 2.1.2)
+  - VideoUploaderIos (~> 0.0.1)
 
 SPEC REPOS:
   trunk:
     - HaishinKit
     - Logboard
+    - VideoUploaderIos
 
 SPEC CHECKSUMS:
   HaishinKit: d1786896ace24065d466bde02356c5352ac001b0
   Logboard: e74ec2d9941abd22f4db3a3ddcd0735011df92c7
+  VideoUploaderIos: 86cd961775812209075c569ac9be9cac39eaf134
 
-PODFILE CHECKSUM: 439c9c4ba7d54800602a341c1a613f9f39535aa5
+PODFILE CHECKSUM: 24e7b1953a08ac9b8541c0de5ce31bdd706c5df5
 
 COCOAPODS: 1.10.1

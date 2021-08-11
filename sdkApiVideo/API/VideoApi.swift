@@ -7,6 +7,7 @@
 //
 import Foundation
 import MobileCoreServices
+import VideoUploaderIos
 
 public class VideoApi{
     enum NetworkError: Error {
@@ -57,7 +58,6 @@ public class VideoApi{
     
     //MARK: Init and Upload video
     public func create(title: String, description: String, fileName: String, filePath: String, url: URL, completion: @escaping (Video?, Response?) -> ()){
-        var uriVideo: String?
         initVideo(title: title, description: description){ (v, resp) in
             //if Error
             if(resp != nil && resp?.statusCode != "200" && resp?.statusCode != "201" && resp?.statusCode != "202"){
@@ -66,21 +66,15 @@ public class VideoApi{
                 completion(nil, resp)
             }
             // if video is created
-            else{
+            else {
                 // if no error with the video uri
                 if(v != nil) {
-                    // get data lenght to upload a big or a small file
-                    let data = try? Data(contentsOf: url)
-                    let dataLen = data!.count
-                    uriVideo = v?.sourceVideo?.uri
-                    // if data lenght < 30mb upload small file else upload big file
-                    if(dataLen < self.chunkSize){
-                        self.uploadSmallVideoFile(videoUri: uriVideo!, fileName: fileName, filePath: filePath, url: url){ (video, resp) in
-                            completion(video, resp)
-                        }
-                    }else{
-                        self.uploadLargeStream(videoUri: uriVideo!, fileName: fileName, filePath: filePath, url: url){(video, resp) in
-                            completion(video, resp)
+                    let uploader = VideoUploader()
+                    uploader.uploadWithAuthentication(bearerToken: self.key, videoId: (v?.videoId!)!, fileName: fileName, filePath: filePath, url: url) { json, apiError in
+                        if(apiError != nil) {
+                            completion(nil, Response(url: apiError?.url, statusCode: apiError?.statusCode, message: apiError?.message))
+                        } else {
+                            completion(v, nil)
                         }
                     }
                 }
@@ -94,85 +88,6 @@ public class VideoApi{
     
     
     
-    
-    
-    //MARK: Upload small video
-    public func uploadSmallVideoFile(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Video?, Response?) -> ()){
-        let apiPath = self.environnement + videoUri
-        let boundary = generateBoundaryString()
-        var video: Video?
-        
-        var request = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
-        request.httpBody = try? createBodyWithUrl(url: url, filePath: filePath, fileName: fileName, boundary: boundary)
-        
-        let session = RequestsBuilder().urlSessionBuilder()
-        TasksExecutor().execute(session: session, request: request){(data, response) in
-            if(data != nil){
-                video = try? self.decoder.decode(Video.self, from: data!)
-            }
-            completion(video, response)
-        }
-    }
-    
-    //MARK: Upload Large video by stream (WIP)
-    public func uploadLargeStream(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Video?, Response?) -> ()){
-        let apiPath = self.environnement + videoUri
-        let data = try? Data(contentsOf: url)
-        let fileSize = data!.count
-        var video: Video?
-        
-        let semaphore = DispatchSemaphore(value: 0)
-        var readBytes: Int = 0
-        
-        for offset in stride(from: 0, through: fileSize, by: chunkSize){
-            let fileStream = InputStream(fileAtPath: filePath)!
-            var chunkEnd = offset + chunkSize
-            
-            // if last chunk
-            if(chunkEnd > fileSize){
-                chunkEnd = fileSize
-            }
-            
-            let multipartUploadInputStream = MultipartUploadInputStream(inputStream: fileStream, fileName: fileName, partName: "file", contentType: "video/mp4", chunkStart: Int64(offset), chunkEnd: Int64(chunkEnd), semaphore: semaphore)
-            
-            var urlRequest = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: multipartUploadInputStream.getBoundary())
-            urlRequest.setValue("bytes \(offset)-\(chunkEnd-1)/\(Int64(fileSize))", forHTTPHeaderField: "Content-Range")
-            urlRequest.setValue(String(multipartUploadInputStream.getSize()), forHTTPHeaderField: "Content-Length")
-            urlRequest.httpBodyStream = multipartUploadInputStream
-            
-           
-            let session = RequestsBuilder().urlSessionBuilder()
-            
-            TasksExecutor().execute(session: session, request: urlRequest){(data, response) in
-                if(data != nil){
-                    readBytes = chunkEnd
-                    video = try? self.decoder.decode(Video.self, from: data!)
-                    semaphore.signal()
-                }else{
-                    completion(nil, response)
-                }
-            }
-            semaphore.wait()
-            fileStream.close()
-        }
-        if(readBytes == fileSize){
-            completion(video, nil)
-        }
-    }
-    
-    
-    private func createBodyWithUrl(url: URL, filePath: String, fileName: String, boundary: String) throws -> Data{
-        var body = Data()
-        let data = try Data(contentsOf: url)
-        let mimetype = mimeType(for: filePath)
-        body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"\(filePath)\"; filename=\"\(fileName)\"\r\n")
-        body.append("Content-Type: \(mimetype)\r\n\r\n")
-        body.append(data)
-        body.append("\r\n")
-        body.append("--\(boundary)--\r\n")
-        return body
-    }
     private func createBodyWithData(data: Data, filePath: String, fileName: String, boundary: String) throws -> Data{
         var body = Data()
         body.append("--\(boundary)\r\n")
@@ -182,12 +97,6 @@ public class VideoApi{
         body.append("\r\n")
         body.append("--\(boundary)--\r\n")
         return body
-    }
-    
-    private func createBody(data: Data, filePath: String, fileName: String, boundary: String) throws -> InputStream{
-        let body = try createBodyWithData(data: data, filePath: filePath, fileName: fileName, boundary: boundary)
-        let inputStream = InputStream(data: body)
-        return inputStream
     }
     
     private func generateBoundaryString() -> String {
@@ -204,96 +113,6 @@ public class VideoApi{
             }
         }
         return "application/octet-stream"
-    }
-    
-    
-    
-    //MARK: Upload big video file
-    @available(*, deprecated)
-    public func uploadBigVideoFile(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Bool, Response?) -> ()){
-        let apiPath = self.environnement + videoUri
-        let boundary = generateBoundaryString()
-        var datas: [[String:String]] = []
-        let data = try? Data(contentsOf: url)
-        let dataLen = data!.count
-        let fullChunks = Int(dataLen / chunkSize)
-        let totalChunks = fullChunks + (dataLen % 1024 != 0 ? 1 : 0)
-        var initialChunk = 0
-        var maxChunk = 0
-        
-        var chunk:Data = Data()
-        var chunks:[Data] = [Data]()
-        
-        let concurrentQueue = DispatchQueue(label: "com.queue.Concurrent", attributes: .concurrent)
-        let semaphore = DispatchSemaphore(value: 2)
-        
-        
-        for chunkCounter in 0..<totalChunks {
-            maxChunk = initialChunk + chunkSize
-            let chunkBase = chunkCounter * chunkSize
-            var diff = chunkSize
-            if(chunkCounter == totalChunks - 1) {
-                diff = dataLen - chunkBase
-                maxChunk = dataLen
-            }
-            let range:Range<Data.Index> = (chunkBase..<(chunkBase + diff))
-            chunk = data!.subdata(in: range)
-            chunks.append(chunk)
-            
-            let element = ["chunkMin":initialChunk.description, "chunkMax": (maxChunk - 1).description, "fullChunk": dataLen.description, "chunkNumber": chunkCounter.description] as [String : String]
-            datas.append(element)
-            initialChunk = maxChunk
-        }
-        
-        for i in 0..<totalChunks {
-            concurrentQueue.async {
-                let bytes = datas[i]
-                let name = "file\(i)"
-                semaphore.wait()
-                self.requestUploadHeavyVideo(apiPath: apiPath, boundary: boundary, fileName: name, filePath: filePath, fileSizeMax: bytes["chunkMax"]!, fileSizeMin: bytes["chunkMin"]!, fileSize: bytes["fullChunk"]!, number: i, maxChunk: totalChunks, data: chunks[i], semaphore: semaphore){(crea, resp) in
-                    if(crea){
-                        completion(true, resp)
-                    }else{
-                        completion(false, resp)
-                    }
-                }
-            }
-        }
-    }
-    
-    private func requestUploadHeavyVideo(apiPath: String, boundary: String, fileName: String, filePath: String, fileSizeMax: String, fileSizeMin: String, fileSize: String, number: Int, maxChunk:Int, data: Data, semaphore: DispatchSemaphore, completion: @escaping (Bool, Response?) -> ()){
-        var request = RequestsBuilder().postMultipartUrlRequestBuilder(apiPath: apiPath, tokenType: self.tokenType, key: self.key, boundary: boundary)
-        
-        request.setValue("bytes \(fileSizeMin)-\(fileSizeMax)/\(fileSize)", forHTTPHeaderField: "Content-Range")
-        request.httpBody = try? createBodyWithData(data: data, filePath: filePath, fileName: fileName, boundary: boundary)
-        
-        var resp: Response?
-        let session = URLSession.shared
-        TasksExecutor().execute(session: session, request: request){(data, response) in
-            self.sumChunk = self.sumChunk + ( number + 1)
-            if(data != nil){
-                resp = nil
-                completion(false, resp)
-            }else{
-                resp = response
-                completion(false, resp)
-            }
-            let total = ((maxChunk * (maxChunk + 1 )) / 2)
-            if(self.sumChunk == total){
-                completion(true, resp)
-            }
-        }
-    }
-    
-    
-    /// Get file size in Bytes
-    /// Retrun optional UInt64
-    func fileSizeInBytes(fromPath path: String) -> Int? {
-        guard let size = try? FileManager.default.attributesOfItem(atPath: path)[FileAttributeKey.size],
-              let fileSize = size as? Int else {
-            return nil
-        }
-        return fileSize
     }
     
     

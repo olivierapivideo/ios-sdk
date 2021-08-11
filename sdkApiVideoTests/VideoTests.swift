@@ -28,6 +28,7 @@ class VideoTests: Common {
         let bundle = Bundle(for: type(of: self))
         let filepath = bundle.path(forResource: "574k", ofType: "mp4")!
         let url = bundle.url(forResource: "574k", withExtension: "mp4")
+    
         
         self.videoApi!.create(title: filename, description: "desc", fileName: filename, filePath: filepath, url: url!){(video, resp) in
             finalVideo = video
@@ -43,41 +44,6 @@ class VideoTests: Common {
         waitForExpectations(timeout: 100, handler: nil)
         XCTAssertNotNil(finalVideo)
         XCTAssertEqual(finalVideo?.title, filename);
-        XCTAssertNil(response)
-    }
-    
-    //MARK: test init video success
-    func testuploadLargeStream_Success() throws {
-        try XCTSkipIf(getApiKey() == nil)
-        
-        let expectation = self.expectation(description: "request should succeed")
-        var response: Response?
-        var finalVideo: Video?
-        let filename = "574k.mp4"
-        let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "574k", ofType: "mp4")!
-        let url = bundle.url(forResource: "574k", withExtension: "mp4")
-        
-        self.videoApi!.setChunkSize(size: 1024*500); // 500kb chunks to simulate big file upload
-        
-        self.createVideo() { (video) in
-            self.videoApi!.uploadLargeStream(videoUri: (video.sourceVideo?.uri)!, fileName: filename, filePath: filepath, url: url!){(video, resp) in
-                finalVideo = video
-                response = resp
-                
-                if(finalVideo?.videoId != nil) {
-                    self.videoApi!.deleteVideo(videoId: (finalVideo?.videoId!)!) { success, response in
-                        self.deleteVideo(video: video)
-                        expectation.fulfill()
-                    }
-                }
-            }
-        }
-            
-        
-        waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertNotNil(finalVideo)
-        XCTAssertEqual(finalVideo?.title, "test");
         XCTAssertNil(response)
     }
     
@@ -121,61 +87,6 @@ class VideoTests: Common {
         XCTAssertNotNil(response)
     }
     
-    //MARK: test Upload Small Video Success
-    func testUploadSmallVideo_success() throws {
-        try XCTSkipIf(getApiKey() == nil)
-        
-        let expectation = self.expectation(description: "request should succeed")
-        var response: Response?
-        var finalVideo: Video?
-        let filename = "574k.mp4"
-        let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "574k", ofType: "mp4")!
-        let url = URL(fileURLWithPath: filepath)
-        
-        
-        self.videoApi!.initVideo(title: filename, description: "") { v, res0 in
-            self.videoApi!.uploadSmallVideoFile(videoUri: (v?.sourceVideo?.uri)!, fileName: filename, filePath: filepath, url: url){ (video, res1) in
-                finalVideo = video
-                response = res1
-                
-                self.videoApi!.deleteVideo(videoId: (finalVideo?.videoId)!) { success, res2 in
-                    expectation.fulfill()
-                }
-            }
-        }
-    
-        
-        waitForExpectations(timeout: 100000, handler: nil)
-        XCTAssertNotNil(finalVideo)
-        XCTAssertNil(response)
-        
-    }
-    
-    //MARK: test Upload Small Video Error
-    //wrong video uri
-    func testUploadSmallVideo_error() throws {
-        try XCTSkipIf(getApiKey() == nil)
-        
-        let expectation = self.expectation(description: "request should not succeed")
-        var response: Response?
-        var finalVideo: Video?
-        let videoUri = "/videos/thatdoesntexist/source"
-        let filename = "574k.mp4"
-        let bundle = Bundle(for: type(of: self))
-        let filepath = bundle.path(forResource: "574k", ofType: "mp4")!
-        let url = bundle.url(forResource: "574k", withExtension: "mp4")
-        
-        self.videoApi!.uploadSmallVideoFile(videoUri: videoUri, fileName: filename, filePath: filepath, url: url!){ (video, resp) in
-                expectation.fulfill()
-                finalVideo = video
-                response = resp
-        }
-    
-        waitForExpectations(timeout: 100, handler: nil)
-        XCTAssertNil(finalVideo)
-        XCTAssertNotNil(response)
-    }
 
     
     

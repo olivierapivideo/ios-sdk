@@ -8,6 +8,7 @@ target 'sdkApiVideo' do
   # Pods for sdkApiVideo
   pod 'HaishinKit', '~> 1.0.4'
   pod 'Logboard', '~> 2.1.2'
+  pod 'VideoUploaderIos', '~> 0.0.1'
   
   target 'sdkApiVideoTests' do
     # Pods for testing
