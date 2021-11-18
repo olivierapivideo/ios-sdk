@@ -79,7 +79,7 @@ public class VideoApi{
                             completion(video, resp)
                         }
                     }else{
-                        self.uploadLargeStream(videoUri: uriVideo!, fileName: fileName, filePath: filePath, url: url){(video, resp) in
+                        self.uploadLargeStream(videoUri: uriVideo!, fileName: fileName, url: url){(video, resp) in
                             completion(video, resp)
                         }
                     }
@@ -115,7 +115,8 @@ public class VideoApi{
     }
     
     //MARK: Upload Large video by stream (WIP)
-    public func uploadLargeStream(videoUri: String, fileName: String, filePath: String, url: URL, completion: @escaping (Video?, Response?) -> ()){
+    public func uploadLargeStream(videoUri: String, fileName: String, url: URL, completion: @escaping (Video?, Response?) -> ()){
+        let chunkSize: Int = ((1024 * 1024) * 30) // MB
         let apiPath = self.environnement + videoUri
         let data = try? Data(contentsOf: url)
         let fileSize = data!.count
@@ -125,7 +126,7 @@ public class VideoApi{
         var readBytes: Int = 0
         
         for offset in stride(from: 0, through: fileSize, by: chunkSize){
-            let fileStream = InputStream(fileAtPath: filePath)!
+            let fileStream = InputStream(url: url)!
             var chunkEnd = offset + chunkSize
             
             // if last chunk
