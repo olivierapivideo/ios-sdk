@@ -4,6 +4,8 @@
 
 api.video is an API that encodes on the go to facilitate immediate playback, enhancing viewer streaming experiences across multiple devices and platforms. You can stream live or on-demand online videos within minutes.
 
+# DEPRECATED: Please use our [iOS API client](https://github.com/apivideo/api.video-ios-client)
+
 # IOS SDK API.VIDEO
 
 ![Language](https://img.shields.io/badge/language-Swift%205.1-orange.svg)
