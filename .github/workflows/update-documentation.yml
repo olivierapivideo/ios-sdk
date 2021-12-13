@@ -2,7 +2,7 @@ name: Update readme.io documentation
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   update-documentation:
     runs-on: ubuntu-latest
